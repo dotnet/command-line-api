@@ -4,62 +4,62 @@
     <body>
       <trans-unit id="ArgumentConversionCannotParse">
         <source>Cannot parse argument '{0}' as expected type '{1}'.</source>
-        <target state="new">Cannot parse argument '{0}' as expected type '{1}'.</target>
+        <target state="translated">Argument '{0}' kann nicht als Typ '{1}' gelesen werden.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForCommand">
         <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</source>
-        <target state="new">Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</target>
+        <target state="translated">Argument '{0}' für Befehl '{1}' kann nicht als Typ '{2}' gelesen werden.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForCommand_Completions">
         <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
-        <target state="new">Cannot parse argument '{0}' for command '{1}' as expected type '{2}'. Did you mean one of the following?{3}</target>
+        <target state="translated">Argument '{0}' für Befehl '{1}' kann nicht als Typ '{2}' gelesen werden. Meinten Sie eines davon?{3}</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption">
         <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</source>
-        <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</target>
+        <target state="translated">Argument '{0}' für Option '{1}' kann nicht als Typ '{2}' gelesen werden.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption_Completions">
         <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
-        <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</target>
+        <target state="translated">Argument '{0}' für Option '{1}' kann nicht als Typ '{2}' gelesen werden. Meinten Sie eines davon?{3}</target>
         <note />
       </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
         <source>Required argument '{0}' missing for command: '{1}'.</source>
-        <target state="translated">Ein erforderliches Argument '{0}' fehlt für den Befehl: '{1}'.</target>
+        <target state="translated">Für Befehl '{1}' fehlt das erforderliche Argument '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="DirectoryDoesNotExist">
         <source>Directory does not exist: '{0}'.</source>
-        <target state="translated">Verzeichnis nicht vorhanden: '{0}'.</target>
+        <target state="translated">Verzeichnis nicht gefunden: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ErrorReadingResponseFile">
         <source>Error reading response file '{0}': {1}</source>
-        <target state="translated">Fehler beim Lesen der Antwortdatei '{0}': {1}</target>
+        <target state="translated">Antwortdatei '{0}' konnte nicht gelesen werden: {1}</target>
         <note />
       </trans-unit>
       <trans-unit id="ExceptionHandlerHeader">
         <source>Unhandled exception: </source>
-        <target state="new">Unhandled exception: </target>
+        <target state="translated">Nicht behandelte Ausnahme: </target>
         <note />
       </trans-unit>
       <trans-unit id="FileDoesNotExist">
         <source>File does not exist: '{0}'.</source>
-        <target state="translated">Die Datei ist nicht vorhanden: '{0}'.</target>
+        <target state="translated">Datei nicht gefunden: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="FileOrDirectoryDoesNotExist">
         <source>File or directory does not exist: '{0}'.</source>
-        <target state="translated">Datei oder Verzeichnis nicht vorhanden: '{0}'.</target>
+        <target state="translated">Datei oder Verzeichnis nicht gefunden: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsDescription">
         <source>Arguments passed to the application that is being run.</source>
-        <target state="new">Arguments passed to the application that is being run.</target>
+        <target state="translated">Argumente für die gestartete Anwendung.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsTitle">
@@ -69,7 +69,7 @@
       </trans-unit>
       <trans-unit id="HelpArgumentDefaultValueLabel">
         <source>default</source>
-        <target state="new">default</target>
+        <target state="translated">Standard</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpArgumentsTitle">
@@ -84,32 +84,32 @@
       </trans-unit>
       <trans-unit id="HelpDescriptionTitle">
         <source>Description:</source>
-        <target state="new">Description:</target>
+        <target state="translated">Beschreibung:</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionDescription">
         <source>Show help and usage information</source>
-        <target state="new">Show help and usage information</target>
+        <target state="translated">Hilfe und Verwendung anzeigen</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionsRequiredLabel">
         <source>(REQUIRED)</source>
-        <target state="new">(REQUIRED)</target>
+        <target state="translated">(ERFORDERLICH)</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageCommand">
         <source>[command]</source>
-        <target state="new">[command]</target>
+        <target state="translated">[Befehl]</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageOptions">
         <source>[options]</source>
-        <target state="new">[options]</target>
+        <target state="translated">[Optionen]</target>
         <note />
       </trans-unit>
       <trans-unit id="InvalidCharactersInFileName">
         <source>Character not allowed in a file name: '{0}'.</source>
-        <target state="new">Character not allowed in a file name: '{0}'.</target>
+        <target state="translated">In Dateinamen unzulässiges Zeichen: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionsTitle">
@@ -119,37 +119,37 @@
       </trans-unit>
       <trans-unit id="HelpUsageAdditionalArguments">
         <source>[[--] &lt;additional arguments&gt;...]]</source>
-        <target state="new">[[--] &lt;additional arguments&gt;...]]</target>
+        <target state="translated">[[--] &lt;weitere Argumente&gt;...]]</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageTitle">
         <source>Usage:</source>
-        <target state="translated">Nutzung:</target>
+        <target state="translated">Verwendung:</target>
         <note />
       </trans-unit>
       <trans-unit id="InvalidCharactersInPath">
         <source>Character not allowed in a path: '{0}'.</source>
-        <target state="translated">Zeichen in Pfad nicht zulässig: '{0}'.</target>
+        <target state="translated">In Pfaden unzulässiges Zeichen: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="OptionExpectsOneArgument">
         <source>Option '{0}' expects a single argument but {1} were provided.</source>
-        <target state="new">Option '{0}' expects a single argument but {1} were provided.</target>
+        <target state="translated">Option '{0}' erwartet genau ein Argument, {1} wurden angegeben.</target>
         <note />
       </trans-unit>
       <trans-unit id="OptionRequiredArgumentMissing">
         <source>Required argument missing for option: '{0}'.</source>
-        <target state="translated">Ein erforderliches Argument fehlt für die Option: '{0}'.</target>
+        <target state="translated">Für Option '{0}' fehlt das erforderliche Argument.</target>
         <note />
       </trans-unit>
       <trans-unit id="RequiredCommandWasNotProvided">
         <source>Required command was not provided.</source>
-        <target state="translated">Der erforderliche Befehl wurde nicht bereitgestellt.</target>
+        <target state="translated">Ein erforderlicher Befehl wurde nicht angegeben.</target>
         <note />
       </trans-unit>
       <trans-unit id="RequiredOptionWasNotProvided">
         <source>Option '{0}' is required.</source>
-        <target state="new">Option '{0}' is required.</target>
+        <target state="translated">Option '{0}' ist erforderlich.</target>
         <note />
       </trans-unit>
       <trans-unit id="ResponseFileNotFound">
@@ -159,12 +159,12 @@
       </trans-unit>
       <trans-unit id="SuggestionsTokenNotMatched">
         <source>'{0}' was not matched. Did you mean one of the following?</source>
-        <target state="new">'{0}' was not matched. Did you mean one of the following?</target>
+        <target state="translated">'{0}' wurde nicht erkannt. Meinten Sie eines davon?</target>
         <note />
       </trans-unit>
       <trans-unit id="UnrecognizedArgument">
         <source>Argument '{0}' not recognized. Must be one of:{1}</source>
-        <target state="translated">Das Argument '{0}' wurde nicht erkannt. Folgendes ist erforderlich: {1}</target>
+        <target state="translated">Argument '{0}' nicht erkannt. Zulässig sind:{1}</target>
         <note />
       </trans-unit>
       <trans-unit id="UnrecognizedCommandOrArgument">
@@ -174,7 +174,7 @@
       </trans-unit>
       <trans-unit id="VersionOptionCannotBeCombinedWithOtherArguments">
         <source>{0} option cannot be combined with other arguments.</source>
-        <target state="new">{0} option cannot be combined with other arguments.</target>
+        <target state="translated">Option '{0}' kann nicht mit anderen Argumenten kombiniert werden.</target>
         <note />
       </trans-unit>
       <trans-unit id="VersionOptionDescription">
