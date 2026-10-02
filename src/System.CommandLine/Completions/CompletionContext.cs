@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
@@ -87,12 +87,18 @@ namespace System.CommandLine.Completions
             }
             else
             {
-                var textBeforeCursor = rawInput!.Substring(0, position!.Value);
+                int positionValue = position!.Value;
 
-                var textAfterCursor = rawInput.Substring(position.Value);
+                int startIndex = positionValue > 0 ? rawInput!.LastIndexOf(' ', positionValue - 1) : -1;
+                startIndex = startIndex == -1 ? 0 : startIndex + 1;
 
-                return textBeforeCursor.Split(' ').LastOrDefault() +
-                       textAfterCursor.Split(' ').FirstOrDefault();
+                int endIndex = rawInput!.IndexOf(' ', positionValue);
+                if (endIndex == -1)
+                {
+                    endIndex = rawInput.Length;
+                }
+
+                return rawInput.Substring(startIndex, endIndex - startIndex);
             }
 
             return "";
