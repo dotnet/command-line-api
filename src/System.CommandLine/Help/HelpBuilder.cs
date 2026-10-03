@@ -137,9 +137,12 @@ namespace System.CommandLine.Help
 
                     yield return (parentCommand is RootCommand root ? root.HelpName : null) ?? parentCommand.Name;
 
-                    if (parentCommand.Arguments.Any())
+                    var argumentToDisplay = parentCommand == command
+                        ? parentCommand.Arguments.Where(a => !a.Hidden).ToList()
+                        : parentCommand.Arguments.Where(a => a.Recursive && !a.Hidden).ToList();
+                    if (argumentToDisplay.Any())
                     {
-                        yield return FormatArgumentUsage(parentCommand.Arguments);
+                        yield return FormatArgumentUsage(argumentToDisplay);
                     }
                 }
 
@@ -168,7 +171,7 @@ namespace System.CommandLine.Help
             command
                 .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                 .Reverse()
-                .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden))
+                .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden && (cmd == command || a.Recursive)))
                 .Select(a => GetTwoColumnRow(a, context))
                 .Distinct();
 
