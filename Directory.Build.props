@@ -13,4 +13,8 @@
     <NetFrameworkMinimum>net472</NetFrameworkMinimum>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
 </Project>
