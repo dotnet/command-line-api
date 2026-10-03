@@ -4,27 +4,27 @@
     <body>
       <trans-unit id="ArgumentConversionCannotParse">
         <source>Cannot parse argument '{0}' as expected type '{1}'.</source>
-        <target state="new">Cannot parse argument '{0}' as expected type '{1}'.</target>
+        <target state="translated">Impossible d'interpréter l'argument '{0}' en tant que type attendu '{1}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForCommand">
         <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</source>
-        <target state="new">Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</target>
+        <target state="translated">Impossible d'interpréter l'argument '{0}' pour la commande '{1}' en tant que type attendu '{2}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForCommand_Completions">
         <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
-        <target state="new">Cannot parse argument '{0}' for command '{1}' as expected type '{2}'. Did you mean one of the following?{3}</target>
+        <target state="translated">Impossible d'interpréter l'argument '{0}' pour la commande '{1}' en tant que type attendu '{2}'. Vouliez-vous dire l'un des éléments suivants ?{3}</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption">
         <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</source>
-        <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</target>
+        <target state="translated">Impossible d'interpréter l'argument '{0}' pour l'option '{1}' en tant que type attendu '{2}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption_Completions">
         <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
-        <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</target>
+        <target state="translated">Impossible d'interpréter l'argument '{0}' pour l'option '{1}' en tant que type attendu '{2}'. Vouliez-vous dire l'un des éléments suivants ?{3}</target>
         <note />
       </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
@@ -44,7 +44,7 @@
       </trans-unit>
       <trans-unit id="ExceptionHandlerHeader">
         <source>Unhandled exception: </source>
-        <target state="new">Unhandled exception: </target>
+        <target state="translated">Exception non gérée : </target>
         <note />
       </trans-unit>
       <trans-unit id="FileDoesNotExist">
@@ -59,7 +59,7 @@
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsDescription">
         <source>Arguments passed to the application that is being run.</source>
-        <target state="new">Arguments passed to the application that is being run.</target>
+        <target state="translated">Arguments transmis à l'application en cours d'exécution.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsTitle">
@@ -69,7 +69,7 @@
       </trans-unit>
       <trans-unit id="HelpArgumentDefaultValueLabel">
         <source>default</source>
-        <target state="new">default</target>
+        <target state="translated">par défaut</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpArgumentsTitle">
@@ -84,32 +84,32 @@
       </trans-unit>
       <trans-unit id="HelpDescriptionTitle">
         <source>Description:</source>
-        <target state="new">Description:</target>
+        <target state="translated">Description :</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionDescription">
         <source>Show help and usage information</source>
-        <target state="new">Show help and usage information</target>
+        <target state="translated">Afficher l'aide et les informations d'utilisation</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionsRequiredLabel">
         <source>(REQUIRED)</source>
-        <target state="new">(REQUIRED)</target>
+        <target state="translated">(REQUIS)</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageCommand">
         <source>[command]</source>
-        <target state="new">[command]</target>
+        <target state="translated">[commande]</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageOptions">
         <source>[options]</source>
-        <target state="new">[options]</target>
+        <target state="translated">[options]</target>
         <note />
       </trans-unit>
       <trans-unit id="InvalidCharactersInFileName">
         <source>Character not allowed in a file name: '{0}'.</source>
-        <target state="new">Character not allowed in a file name: '{0}'.</target>
+        <target state="translated">Caractère non autorisé dans un nom de fichier : '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionsTitle">
@@ -119,7 +119,7 @@
       </trans-unit>
       <trans-unit id="HelpUsageAdditionalArguments">
         <source>[[--] &lt;additional arguments&gt;...]]</source>
-        <target state="new">[[--] &lt;additional arguments&gt;...]]</target>
+        <target state="translated">[[--] &lt;arguments supplémentaires&gt;...]]</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageTitle">
@@ -134,7 +134,7 @@
       </trans-unit>
       <trans-unit id="OptionExpectsOneArgument">
         <source>Option '{0}' expects a single argument but {1} were provided.</source>
-        <target state="new">Option '{0}' expects a single argument but {1} were provided.</target>
+        <target state="translated">L'option '{0}' attend un seul argument, mais {1} ont été fournis.</target>
         <note />
       </trans-unit>
       <trans-unit id="OptionRequiredArgumentMissing">
@@ -149,7 +149,7 @@
       </trans-unit>
       <trans-unit id="RequiredOptionWasNotProvided">
         <source>Option '{0}' is required.</source>
-        <target state="new">Option '{0}' is required.</target>
+        <target state="translated">L'option '{0}' est requise.</target>
         <note />
       </trans-unit>
       <trans-unit id="ResponseFileNotFound">
@@ -159,7 +159,7 @@
       </trans-unit>
       <trans-unit id="SuggestionsTokenNotMatched">
         <source>'{0}' was not matched. Did you mean one of the following?</source>
-        <target state="new">'{0}' was not matched. Did you mean one of the following?</target>
+        <target state="translated">'{0}' ne correspond à rien. Vouliez-vous dire l'un des éléments suivants ?</target>
         <note />
       </trans-unit>
       <trans-unit id="UnrecognizedArgument">
@@ -174,7 +174,7 @@
       </trans-unit>
       <trans-unit id="VersionOptionCannotBeCombinedWithOtherArguments">
         <source>{0} option cannot be combined with other arguments.</source>
-        <target state="new">{0} option cannot be combined with other arguments.</target>
+        <target state="translated">L'option {0} ne peut pas être combinée avec d'autres arguments.</target>
         <note />
       </trans-unit>
       <trans-unit id="VersionOptionDescription">
