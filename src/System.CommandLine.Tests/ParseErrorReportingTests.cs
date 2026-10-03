@@ -17,7 +17,7 @@ public class ParseErrorReportingTests
     [Fact] // https://github.com/dotnet/command-line-api/issues/817
     public void Help_is_shown_when_required_subcommand_is_missing()
     {
-        var root = new RootCommand
+        var root = new RootCommand("root description")
         {
             new Command("inner"),
             new HelpOption()
@@ -37,7 +37,7 @@ public class ParseErrorReportingTests
     [Fact]
     public void Help_display_can_be_disabled()
     {
-        RootCommand rootCommand = new()
+        RootCommand rootCommand = new("root description")
         {
             new Option<bool>("--verbose")
         };
@@ -104,7 +104,7 @@ public class ParseErrorReportingTests
     [Fact]
     public void When_no_help_option_is_present_then_help_is_not_shown_for_parse_errors()
     {
-        RootCommand rootCommand = new();
+        RootCommand rootCommand = new("root description");
         rootCommand.Options.Clear();
         var output = new StringWriter();
         
