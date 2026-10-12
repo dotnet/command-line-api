@@ -72,7 +72,7 @@ namespace System.CommandLine
         /// The name is resolved in the following order:
         /// <list type="number">
         ///   <item><description>The <c>System.CommandLine.ExecutableName</c> value read from <see cref="AppContext"/>, when there is no managed entry point (<see cref="Assembly.GetEntryAssembly"/> returns <see langword="null"/>) - most notably when hosted as a NativeAOT native library. In that case <see cref="Environment.GetCommandLineArgs"/> reflects the host process rather than this component. The value is emitted into the app's <c>runtimeconfig.json</c> by the <c>System.CommandLine</c> build targets and defaults to the assembly name.</description></item>
-        ///   <item><description>The file name (without extension) of the currently running executable, from <see cref="Environment.GetCommandLineArgs"/>.</description></item>
+        ///   <item><description>The file name of the currently running executable, from <see cref="Environment.GetCommandLineArgs"/>. Only a trailing <c>.exe</c> or <c>.dll</c> extension is removed (and spaces are stripped).</description></item>
         ///   <item><description>The <c>System.CommandLine.ExecutableName</c> value from <see cref="AppContext"/>, if the executable path was unavailable.</description></item>
         ///   <item><description>The literal <c>"app"</c>, as a final fallback.</description></item>
         /// </list>
@@ -125,7 +125,7 @@ namespace System.CommandLine
 
             if (path.Length > 0)
             {
-                return Path.GetFileNameWithoutExtension(path).Replace(" ", "");
+                return ExecutableNameHelper.GetExecutableName(path);
             }
 
             if (AppContext.GetData("System.CommandLine.ExecutableName") is string name && name.Length > 0)
