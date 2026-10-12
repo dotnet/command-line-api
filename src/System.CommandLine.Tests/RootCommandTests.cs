@@ -8,6 +8,19 @@ namespace System.CommandLine.Tests
 {
     public class RootCommandTests
     {
+        [Theory]
+        [InlineData("/x/Contoso.Tool", "Contoso.Tool")]
+        [InlineData("./Contoso.Tool", "Contoso.Tool")]
+        [InlineData("Contoso.Tool.exe", "Contoso.Tool")]
+        [InlineData("/x/Contoso.Tool.dll", "Contoso.Tool")]
+        [InlineData("/x/foo.EXE", "foo")]
+        [InlineData("/x/My App", "MyApp")]
+        [InlineData("/x/foo", "foo")]
+        public void Executable_name_only_strips_host_extensions(string path, string expected)
+        {
+            ExecutableNameHelper.GetExecutableName(path).Should().Be(expected);
+        }
+
         [Fact]
         public void Root_command_name_defaults_to_executable_name()
         {

@@ -125,7 +125,7 @@ namespace System.CommandLine
 
             if (path.Length > 0)
             {
-                return Path.GetFileNameWithoutExtension(path).Replace(" ", "");
+                return ExecutableNameHelper.GetExecutableName(path);
             }
 
             if (AppContext.GetData("System.CommandLine.ExecutableName") is string name && name.Length > 0)
