@@ -466,7 +466,6 @@ public partial class HelpBuilderTests
             command.Parse("test -h").Invoke(new() { Output = output });
 
             output.ToString().Should().Be(
-                $"Description:{NewLine}{NewLine}" +
                 $"Usage:{NewLine}  test [options]{NewLine}{NewLine}" +
                 $"Options:{NewLine}" +
                 $"  --option   option {NewLine}" +
