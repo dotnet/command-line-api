@@ -249,6 +249,68 @@ namespace System.CommandLine.Tests
                   .Be("Unrecognized command or argument '@'.");
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        public void When_nested_response_file_does_not_exist_then_error_identifies_that_file(int depth)
+        {
+            var missingFile = Path.GetRandomFileName();
+            var responseFile = missingFile;
+            var option = new Option<string>("--flag");
+
+            for (var i = 0; i < depth; i++)
+            {
+                responseFile = CreateResponseFile("--flag", "value", $"@{responseFile}");
+            }
+
+            var result = new RootCommand { option }.Parse($"@{responseFile}");
+
+            result.GetResult(option).Should().BeNull();
+            result.Errors.Should().ContainSingle()
+                  .Which.Message.Should().Be($"Response file not found '{missingFile}'.");
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        public void When_nested_response_file_directory_does_not_exist_then_error_identifies_that_file(int depth)
+        {
+            var missingFile = Path.Combine(Path.GetRandomFileName(), "missing.rsp");
+            var responseFile = missingFile;
+
+            for (var i = 0; i < depth; i++)
+            {
+                responseFile = CreateResponseFile($"@{responseFile}");
+            }
+
+            var result = new RootCommand().Parse($"@{responseFile}");
+
+            result.Errors.Should().ContainSingle()
+                  .Which.Message.Should().StartWith($"Error reading response file '{missingFile}'");
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        public void When_nested_response_file_cannot_be_read_then_error_identifies_that_file(int depth)
+        {
+            var unreadableFile = CreateResponseFile();
+            var responseFile = unreadableFile;
+
+            for (var i = 0; i < depth; i++)
+            {
+                responseFile = CreateResponseFile($"@{responseFile}");
+            }
+
+            using (File.Open(unreadableFile, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+            {
+                var result = new RootCommand().Parse($"@{responseFile}");
+
+                result.Errors.Should().ContainSingle()
+                      .Which.Message.Should().StartWith($"Error reading response file '{unreadableFile}'");
+            }
+        }
+
         [Fact]
         public void When_response_file_cannot_be_read_then_specified_error_is_returned()
         {
