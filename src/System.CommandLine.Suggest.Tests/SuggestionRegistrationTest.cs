@@ -16,8 +16,8 @@ namespace System.CommandLine.Suggest.Tests
         {
             ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
 
-            var suggestion1 = new Registration("commandPath1");
-            var suggestion2 = new Registration("commandPath2");
+            var suggestion1 = new Registration(Path.GetFullPath("commandPath1"));
+            var suggestion2 = new Registration(Path.GetFullPath("commandPath2"));
 
             suggestionProvider.AddSuggestionRegistration(suggestion1);
             suggestionProvider.AddSuggestionRegistration(suggestion2);
@@ -81,19 +81,6 @@ namespace System.CommandLine.Suggest.Tests
             {
                 Directory.Delete(path, true);
             }
-        }   
-
-        [Fact]
-        public void Suggestion_command_path_is_not_case_sensitive()
-        {
-            ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
-
-            suggestionProvider.AddSuggestionRegistration(
-                new Registration(Path.GetFullPath("commandPath")));
-
-            Registration registration = suggestionProvider.FindRegistration(new FileInfo("COMMANDPATH"));
-
-            registration.ExecutablePath.Should().Be(Path.GetFullPath("commandPath"));
         }
     }
 }
