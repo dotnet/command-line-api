@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using System.Collections.Generic;
+using System.CommandLine.Completions;
 using System.CommandLine.Help;
 using System.IO;
 using System.Linq;
@@ -486,6 +487,24 @@ namespace System.CommandLine.Tests.Help
             m,
             n,
             d,
+        }
+
+        [Fact]
+        public void Option_usage_orders_suggestions_by_sort_text()
+        {
+            var option = new Option<int>("--number");
+            option.CompletionSources.Add(_ => new[]
+            {
+                new CompletionItem("5", sortText: "05"),
+                new CompletionItem("10", sortText: "10"),
+                new CompletionItem("6", sortText: "06"),
+                new CompletionItem("20", sortText: "10"),
+                new CompletionItem("30", sortText: "30")
+            });
+
+            _helpBuilder.Write(new RootCommand { option }, _console);
+
+            _console.ToString().Should().Contain("--number <5|6|10|20|30>");
         }
 
         [Fact]
