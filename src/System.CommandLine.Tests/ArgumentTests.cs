@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using FluentAssertions.Execution;
 using Xunit;
 
@@ -10,6 +12,63 @@ namespace System.CommandLine.Tests;
 
 public class ArgumentTests
 {
+    [Fact]
+    public void Debugger_inspection_does_not_fix_arity_before_argument_is_added_to_command()
+    {
+        var argument = new Argument<string[]>("items");
+
+        ReadDebuggerArity(argument).Should().Be(ArgumentArity.OneOrMore);
+        var root = new RootCommand { argument };
+        var result = root.Parse("");
+
+        result.Errors.Should().BeEmpty();
+        argument.Arity.Should().Be(ArgumentArity.ZeroOrMore);
+    }
+
+    [Fact]
+    public void Debugger_inspection_does_not_fix_arity_before_default_value_factory_is_set()
+    {
+        var argument = new Argument<int>("count");
+        var root = new RootCommand { argument };
+
+        ReadDebuggerArity(argument).Should().Be(ArgumentArity.ExactlyOne);
+        argument.DefaultValueFactory = _ => 42;
+        var result = root.Parse("");
+
+        result.Errors.Should().BeEmpty();
+        result.GetValue(argument).Should().Be(42);
+        argument.Arity.Should().Be(ArgumentArity.ZeroOrOne);
+    }
+
+    [Fact]
+    public void Debugger_view_shows_explicit_arity()
+    {
+        var argument = new Argument<int>("count") { Arity = ArgumentArity.ZeroOrOne };
+
+        ReadDebuggerArity(argument).Should().Be(ArgumentArity.ZeroOrOne);
+    }
+
+    [Fact]
+    public void Debugger_view_shows_previously_initialized_arity()
+    {
+        var argument = new Argument<int>("count");
+        var root = new RootCommand { argument };
+        _ = argument.Arity;
+        argument.DefaultValueFactory = _ => 42;
+
+        ReadDebuggerArity(argument).Should().Be(ArgumentArity.ExactlyOne);
+    }
+
+    private static ArgumentArity ReadDebuggerArity(Argument argument)
+    {
+        var proxy = argument.GetType().GetCustomAttribute<DebuggerTypeProxyAttribute>(inherit: true);
+        var view = proxy is null
+            ? argument
+            : Activator.CreateInstance(Type.GetType(proxy.ProxyTypeName), argument);
+
+        return (ArgumentArity)view.GetType().GetProperty(nameof(Argument.Arity)).GetValue(view);
+    }
+
     [Fact]
     public void By_default_there_is_no_default_value()
     {
