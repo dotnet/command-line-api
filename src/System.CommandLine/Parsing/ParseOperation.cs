@@ -77,18 +77,48 @@ namespace System.CommandLine.Parsing
         private void ParseSubcommand()
         {
             Command command = (Command)CurrentToken.Symbol!;
+            var parentCommandResult = _innermostCommandResult;
 
             _innermostCommandResult = new CommandResult(
                 command,
                 CurrentToken,
                 _symbolResultTree,
-                _innermostCommandResult);
+                parentCommandResult);
 
             _symbolResultTree.Add(command, _innermostCommandResult);
+
+            MoveNonRecursiveParentArgumentsToUnmatched(parentCommandResult, _innermostCommandResult);
 
             Advance();
 
             ParseCommandChildren();
+        }
+
+        private void MoveNonRecursiveParentArgumentsToUnmatched(CommandResult parent, CommandResult innermost)
+        {
+            if (!parent.Command.HasArguments)
+            {
+                return;
+            }
+
+            var arguments = parent.Command.Arguments;
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                Argument argument = arguments[i];
+
+                if (!argument.Recursive &&
+                    _symbolResultTree.TryGetValue(argument, out SymbolResult? parsedResult) &&
+                    parsedResult is ArgumentResult argumentResult &&
+                    ReferenceEquals(argumentResult.Parent, parent))
+                {
+                    foreach (var token in argumentResult.Tokens)
+                    {
+                        _symbolResultTree.AddUnmatchedToken(token, innermost, _rootCommandResult);
+                    }
+
+                    _symbolResultTree.Remove(argument);
+                }
+            }
         }
 
         private void ParseCommandChildren()
@@ -411,7 +441,6 @@ namespace System.CommandLine.Parsing
             while (currentResult is not null)
             {
                 currentResult.Validate(isInnermostCommand: false);
-
                 currentResult = currentResult.Parent as CommandResult;
             }
 
