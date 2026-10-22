@@ -14,6 +14,56 @@ namespace System.CommandLine.Tests;
 
 public class ParseErrorReportingTests
 {
+    [Theory]
+    [InlineData("", false)]
+    [InlineData("", true)]
+    [InlineData("--verbos", false)]
+    [InlineData("--verbos", true)]
+    public async Task Parse_error_help_and_suggestions_are_written_to_standard_error(string commandLine, bool useAsync)
+    {
+        var rootCommand = new RootCommand
+        {
+            new Option<string>("--required") { Required = true },
+            new Option<bool>("--verbose")
+        };
+        var output = new StringWriter();
+        var error = new StringWriter();
+        var configuration = new InvocationConfiguration { Output = output, Error = error };
+        rootCommand.SetAction(_ => 0);
+        var parseResult = rootCommand.Parse(commandLine);
+
+        var exitCode = useAsync
+            ? await parseResult.InvokeAsync(configuration)
+            : parseResult.Invoke(configuration);
+
+        exitCode.Should().Be(1);
+        output.ToString().Should().BeEmpty();
+        error.ToString().Should().ShowHelp();
+        error.ToString().Should().Contain(LocalizationResources.RequiredOptionWasNotProvided("--required"));
+        if (commandLine.Length > 0)
+        {
+            error.ToString().Should().Contain(LocalizationResources.SuggestionsTokenNotMatched("--verbos"));
+        }
+        configuration.Output.Should().BeSameAs(output);
+    }
+
+    [Fact]
+    public async Task Explicit_help_is_written_to_standard_output()
+    {
+        var rootCommand = new RootCommand
+        {
+            new Option<string>("--required") { Required = true }
+        };
+        var output = new StringWriter();
+        var error = new StringWriter();
+
+        var exitCode = await rootCommand.Parse("--help").InvokeAsync(new() { Output = output, Error = error });
+
+        exitCode.Should().Be(0);
+        output.ToString().Should().ShowHelp();
+        error.ToString().Should().BeEmpty();
+    }
+
     [Fact] // https://github.com/dotnet/command-line-api/issues/817
     public void Help_is_shown_when_required_subcommand_is_missing()
     {
@@ -28,7 +78,7 @@ public class ParseErrorReportingTests
 
         parseResult.Errors.Should().NotBeEmpty();
 
-        var result = parseResult.Invoke(new() { Output = output });
+        var result = parseResult.Invoke(new() { Error = output });
 
         result.Should().Be(1);
         output.ToString().Should().ShowHelp();
@@ -51,7 +101,7 @@ public class ParseErrorReportingTests
             parseError.ShowHelp = false;
         }
 
-        result.Invoke(new() { Output = output });
+        result.Invoke(new() { Error = output });
 
         output.ToString().Should().NotShowHelp();
     }
@@ -108,7 +158,7 @@ public class ParseErrorReportingTests
         rootCommand.Options.Clear();
         var output = new StringWriter();
         
-        rootCommand.Parse("oops").Invoke(new() { Output = output } );
+        rootCommand.Parse("oops").Invoke(new() { Error = output } );
 
         output.ToString().Should().NotShowHelp();
     }

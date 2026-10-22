@@ -98,17 +98,17 @@ public sealed class ParseErrorAction : SynchronousCommandLineAction
             {
                 if (first)
                 {
-                    parseResult.InvocationConfiguration.Output.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
+                    parseResult.InvocationConfiguration.Error.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
                     first = false;
                 }
 
-                parseResult.InvocationConfiguration.Output.WriteLine(suggestion);
+                parseResult.InvocationConfiguration.Error.WriteLine(suggestion);
             }
         }
 
         if (unmatchedTokens.Count != 0)
         {
-            parseResult.InvocationConfiguration.Output.WriteLine();
+            parseResult.InvocationConfiguration.Error.WriteLine();
         }
 
         static IEnumerable<string> GetPossibleTokens(CommandResult commandResult, string token)
