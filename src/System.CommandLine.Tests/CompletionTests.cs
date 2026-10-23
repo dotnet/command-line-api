@@ -53,6 +53,54 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo("--one", "--two", "--three");
         }
 
+        [Fact]
+        public void Option_GetCompletions_without_text_to_match_orders_by_sort_text()
+        {
+            var option = new Option<int>("--number");
+            option.CompletionSources.Add(_ => new[]
+            {
+                new CompletionItem("5", sortText: "05"),
+                new CompletionItem("10", sortText: "10"),
+                new CompletionItem("6", sortText: "06"),
+                new CompletionItem("20", sortText: "10"),
+                new CompletionItem("30", sortText: "30")
+            });
+
+            var completions = option.GetCompletions(CompletionContext.Empty);
+
+            completions.Select(item => item.Label).Should().Equal("5", "6", "10", "20", "30");
+        }
+
+        [Fact]
+        public void Option_GetCompletions_orders_by_label_match_position_then_sort_text()
+        {
+            var option = new Option<string>("--word");
+            option.CompletionSources.Add(_ => new[]
+            {
+                new CompletionItem("alpha", sortText: "02"),
+                new CompletionItem("beta", sortText: "00"),
+                new CompletionItem("aardvark", sortText: "01"),
+                new CompletionItem("gamma", sortText: "03"),
+                new CompletionItem("else", sortText: "a")
+            });
+            var command = new RootCommand { option };
+
+            var completions = command.Parse("--word a").GetCompletions();
+
+            completions.Select(item => item.Label).Should().Equal("aardvark", "alpha", "gamma", "beta");
+        }
+
+        [Fact]
+        public void Option_GetCompletions_without_sort_text_orders_by_label()
+        {
+            var option = new Option<string>("--word");
+            option.CompletionSources.Add("zeta", "Beta", "alpha");
+
+            var completions = option.GetCompletions(CompletionContext.Empty);
+
+            completions.Select(item => item.Label).Should().Equal("alpha", "Beta", "zeta");
+        }
+
         [Fact] // https://github.com/dotnet/command-line-api/issues/1563
         public void Command_GetCompletions_returns_available_option_aliases_for_global_options()
         {

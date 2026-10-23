@@ -149,8 +149,8 @@ namespace System.CommandLine
             }
 
             return completions
-                   .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
-                   .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
+                   .OrderBy(item => item.Label.IndexOfCaseInsensitive(context.WordToComplete))
+                   .ThenBy(item => item.SortText, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
