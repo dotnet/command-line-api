@@ -1114,6 +1114,80 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
+            public void FileInfo_command_argument_rejects_an_existing_directory()
+            {
+                var argument = new Argument<FileInfo>("file").AcceptExistingOnly();
+                var path = ExistingDirectory();
+
+                var result = new RootCommand { argument }.Parse(new[] { path });
+
+                result.Errors.Should().ContainSingle()
+                      .Which.Message.Should().Be($"File does not exist: '{path}'.");
+            }
+
+            [Fact]
+            public void FileInfo_option_rejects_an_existing_directory()
+            {
+                var option = new Option<FileInfo>("--file").AcceptExistingOnly();
+                var path = ExistingDirectory();
+
+                var result = new RootCommand { option }.Parse(new[] { "--file", path });
+
+                result.Errors.Should().ContainSingle()
+                      .Which.Message.Should().Be($"File does not exist: '{path}'.");
+            }
+
+            [Fact]
+            public void FileInfo_collection_command_argument_rejects_an_existing_directory()
+            {
+                var argument = new Argument<IEnumerable<FileInfo>>("files").AcceptExistingOnly();
+                var path = ExistingDirectory();
+
+                var result = new RootCommand { argument }.Parse(new[] { ExistingFile(), path });
+
+                result.Errors.Should().ContainSingle()
+                      .Which.Message.Should().Be($"File does not exist: '{path}'.");
+            }
+
+            [Fact]
+            public void FileInfo_collection_option_rejects_an_existing_directory()
+            {
+                var option = new Option<IEnumerable<FileInfo>>("--files").AcceptExistingOnly();
+                var path = ExistingDirectory();
+
+                var result = new RootCommand { option }.Parse(new[] { "--files", ExistingFile(), "--files", path });
+
+                result.Errors.Should().ContainSingle()
+                      .Which.Message.Should().Be($"File does not exist: '{path}'.");
+            }
+
+            [Theory]
+            [InlineData(false)]
+            [InlineData(true)]
+            public void FileSystemInfo_command_argument_accepts_existing_files_and_directories(bool isDirectory)
+            {
+                var argument = new Argument<FileSystemInfo>("path").AcceptExistingOnly();
+                var path = isDirectory ? ExistingDirectory() : ExistingFile();
+
+                var result = new RootCommand { argument }.Parse(new[] { path });
+
+                result.Errors.Should().BeEmpty();
+            }
+
+            [Theory]
+            [InlineData(false)]
+            [InlineData(true)]
+            public void FileSystemInfo_option_accepts_existing_files_and_directories(bool isDirectory)
+            {
+                var option = new Option<FileSystemInfo>("--path").AcceptExistingOnly();
+                var path = isDirectory ? ExistingDirectory() : ExistingFile();
+
+                var result = new RootCommand { option }.Parse(new[] { "--path", path });
+
+                result.Errors.Should().BeEmpty();
+            }
+
+            [Fact]
             public void Option_argument_does_not_return_errors_when_file_exists()
             {
                 var command = new Command("move")
