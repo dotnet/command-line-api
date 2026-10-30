@@ -258,6 +258,7 @@ System.CommandLine.Parsing
     .ctor(System.String value, TokenType type, System.CommandLine.Symbol symbol)
     public TokenType Type { get; }
     public System.String Value { get; }
+    public System.Boolean WasExplicitlyAssigned { get; }
     public System.Boolean Equals(System.Object obj)
     public System.Boolean Equals(Token other)
     public System.Int32 GetHashCode()

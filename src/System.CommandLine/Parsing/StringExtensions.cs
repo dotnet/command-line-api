@@ -168,7 +168,7 @@ namespace System.CommandLine.Parsing
 
                     if (rest is not null)
                     {
-                        tokenList.Add(Argument(rest));
+                        tokenList.Add(ExplicitlyAssignedArgument(rest));
                     }
                 }
                 else if (!configuration.EnablePosixBundling ||
@@ -179,6 +179,8 @@ namespace System.CommandLine.Parsing
                 }
 
                 Token Argument(string value) => new(value, TokenType.Argument, default, i);
+
+                Token ExplicitlyAssignedArgument(string value) => new(value, TokenType.Argument, default, i, wasExplicitlyAssigned: true);
 
                 Token CommandArgument(string value, Command command) => new(value, TokenType.Argument, command, i);
 
@@ -212,7 +214,7 @@ namespace System.CommandLine.Parsing
                 {
                     if (alias[i] == ':' || alias[i] == '=')
                     {
-                        tokenList.Add(new Token(alias.Slice(i + 1).ToString(), TokenType.Argument, default, argumentIndex));
+                        tokenList.Add(new Token(alias.Slice(i + 1).ToString(), TokenType.Argument, default, argumentIndex, wasExplicitlyAssigned: true));
                         return true;
                     }
 
@@ -222,7 +224,7 @@ namespace System.CommandLine.Parsing
                         if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == TokenType.Option)
                         {
                             // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
-                            tokenList.Add(new Token(alias.Slice(i).ToString(), TokenType.Argument, default, argumentIndex));
+                            tokenList.Add(new Token(alias.Slice(i).ToString(), TokenType.Argument, default, argumentIndex, wasExplicitlyAssigned: true));
                             return true;
                         }
 
@@ -237,7 +239,7 @@ namespace System.CommandLine.Parsing
                         {
                             index++; // Last_bundled_option_can_accept_argument_with_colon_separator
                         }
-                        tokenList.Add(new Token(alias.Slice(index).ToString(), TokenType.Argument, default, argumentIndex));
+                        tokenList.Add(new Token(alias.Slice(index).ToString(), TokenType.Argument, default, argumentIndex, wasExplicitlyAssigned: true));
                         return true;
                     }
                 }

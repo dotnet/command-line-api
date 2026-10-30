@@ -1246,6 +1246,103 @@ namespace System.CommandLine.Tests
             result.GetValue(optionX).Should().Be("-y");
         }
 
+        [Theory]
+        [InlineData("-x=-y")]
+        [InlineData("-x:-y")]
+        public void Option_argument_tokens_record_that_a_value_was_explicitly_assigned(string input)
+        {
+            var optionX = new Option<string>("-x");
+
+            var command = new Command("command")
+            {
+                optionX,
+                new Option<string>("-y")
+            };
+
+            var result = command.Parse(input);
+
+            result.GetResult(optionX).Tokens.Single().WasExplicitlyAssigned.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Option_argument_tokens_record_that_a_value_was_not_explicitly_assigned()
+        {
+            var optionX = new Option<string>("-x");
+
+            var command = new Command("command")
+            {
+                optionX,
+                new Option<string>("-y")
+            };
+
+            var result = command.Parse("-x -y");
+
+            result.GetResult(optionX).Tokens.Single().WasExplicitlyAssigned.Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData("-abcvalue")]
+        [InlineData("-abc=value")]
+        [InlineData("-abc:value")]
+        public void Bundled_option_argument_tokens_record_that_a_value_was_explicitly_assigned(string input)
+        {
+            var optionC = new Option<string>("-c") { Arity = ArgumentArity.ExactlyOne };
+
+            var command = new RootCommand
+            {
+                new Option<bool>("-a"),
+                new Option<bool>("-b"),
+                optionC
+            };
+
+            var result = command.Parse(input);
+
+            result.GetResult(optionC).Tokens.Single().WasExplicitlyAssigned.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Command_argument_tokens_are_never_explicitly_assigned()
+        {
+            var argument = new Argument<string>("arg");
+
+            var command = new RootCommand { argument };
+
+            var result = command.Parse("value");
+
+            result.GetResult(argument).Tokens.Single().WasExplicitlyAssigned.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Explicitly_assigned_option_like_values_can_be_distinguished_from_mistyped_options()
+        {
+            // The scenario the flag exists for: '--search=--foo' unambiguously assigns a value that looks
+            // like an option, while '--search --foo' is just as likely to be a typo.
+            var search = new Option<string>("--search")
+            {
+                CustomParser = result =>
+                {
+                    var token = result.Tokens[0];
+
+                    if (token.Value.StartsWith("-") && !token.WasExplicitlyAssigned)
+                    {
+                        result.AddError($"'{token.Value}' looks like an option. Use --search={token.Value} to pass it as a value.");
+                        return null;
+                    }
+
+                    return token.Value;
+                }
+            };
+
+            var command = new RootCommand { search };
+
+            command.Parse("--search=--foo").Errors.Should().BeEmpty();
+            command.Parse("--search=--foo").GetValue(search).Should().Be("--foo");
+
+            command.Parse("--search --foo").Errors
+                   .Should().ContainSingle()
+                   .Which.Message.Should().Be("'--foo' looks like an option. Use --search=--foo to pass it as a value.");
+        }
+
         [Fact]
         public void Single_option_arguments_that_match_option_aliases_are_parsed_correctly()
         {
