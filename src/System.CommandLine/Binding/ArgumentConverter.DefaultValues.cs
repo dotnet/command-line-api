@@ -18,6 +18,7 @@ internal static partial class ArgumentConverter
     private static Array CreateArray(Type itemType, int capacity)
         => Array.CreateInstance(itemType, capacity);
 
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2070", Justification = "listType is a closed List<T> type, which has a public parameterless constructor.")]
     private static IList CreateEmptyList(Type listType)
     {
 #if NET6_0_OR_GREATER
