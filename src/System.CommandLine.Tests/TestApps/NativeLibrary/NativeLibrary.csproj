@@ -15,6 +15,8 @@
          condition RootCommand's executable-name fallback (issue #2812) handles. -->
     <NativeLib>Shared</NativeLib>
     <PublishAot>true</PublishAot>
+    <!-- Preserve the runtime configuration hook until https://github.com/dotnet/sdk/issues/56912 is resolved. -->
+    <UseOptimizedPublish>false</UseOptimizedPublish>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
     <ControlFlowGuard>Guard</ControlFlowGuard>
     <IsTestUtilityProject>true</IsTestUtilityProject>
