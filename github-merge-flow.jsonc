@@ -1,10 +1,17 @@
 // IMPORTANT: This file is read by the merge flow from main branch only. 
 {
     "merge-flow-configurations": {
-        // Automate opening PRs to merge release/10.0 to main
+        // Automate opening PRs to merge release/10.0 to release/11.0
         "release/10.0":{
+            "MergeToBranch": "release/11.0",
+            "ExtraSwitches": "-QuietComments",
+            "ResetToTargetPaths": "global.json;NuGet.config;eng/Version.Details.xml;eng/Versions.props;eng/common/*"
+        },
+        // Automate opening PRs to merge release/11.0 to main
+        "release/11.0":{
             "MergeToBranch": "main",
-            "ExtraSwitches": "-QuietComments"
+            "ExtraSwitches": "-QuietComments",
+            "ResetToTargetPaths": "global.json;NuGet.config;eng/Version.Details.xml;eng/Versions.props;eng/common/*"
         }
     }
 }
