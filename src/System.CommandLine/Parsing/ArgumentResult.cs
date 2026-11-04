@@ -18,9 +18,11 @@ namespace System.CommandLine.Parsing
         internal ArgumentResult(
             Argument argument,
             SymbolResultTree symbolResultTree,
-            SymbolResult? parent) : base(symbolResultTree, parent)
+            SymbolResult? parent,
+            bool isImplicit = false) : base(symbolResultTree, parent)
         {
             Argument = argument ?? throw new ArgumentNullException(nameof(argument));
+            Implicit = isImplicit;
         }
 
         /// <summary>

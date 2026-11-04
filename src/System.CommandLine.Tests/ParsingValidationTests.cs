@@ -406,6 +406,124 @@ namespace System.CommandLine.Tests
                 .Which.Message.Should().Be(LocalizationResources.FileDoesNotExist("nonexistent.xyz"));
         }
 
+        [Theory]
+        [InlineData("", false, 1, 1)]
+        [InlineData("-m 3", false, 3, 0)]
+        [InlineData("child", true, 1, 1)]
+        [InlineData("child -m 3", true, 3, 0)]
+        public void Command_validators_can_read_option_default_values(string commandLine, bool useSubcommand, int expectedValue, int expectedFactoryCalls)
+        {
+            var factoryCalls = 0;
+            var option = new Option<int>("-m")
+            {
+                Recursive = true,
+                DefaultValueFactory = _ =>
+                {
+                    factoryCalls++;
+                    return 1;
+                }
+            };
+            var root = new RootCommand { option };
+            var command = useSubcommand ? new Command("child") : root;
+            if (useSubcommand)
+            {
+                root.Add(command);
+            }
+            command.Validators.Add(result =>
+            {
+                result.GetValue(option).Should().Be(expectedValue);
+                result.GetRequiredValue(option).Should().Be(expectedValue);
+                result.GetValue<int>("-m").Should().Be(expectedValue);
+                result.GetRequiredValue<int>("-m").Should().Be(expectedValue);
+                result.GetResult(option).Implicit.Should().Be(expectedFactoryCalls == 1);
+            });
+
+            var parseResult = root.Parse(commandLine);
+
+            parseResult.Errors.Should().BeEmpty();
+            parseResult.GetValue(option).Should().Be(expectedValue);
+            factoryCalls.Should().Be(expectedFactoryCalls);
+        }
+
+        [Fact]
+        public void Command_validators_can_read_argument_default_values()
+        {
+            var argument = new Argument<int>("value") { DefaultValueFactory = _ => 7 };
+            var root = new RootCommand { argument };
+            root.Validators.Add(result =>
+            {
+                result.GetResult(argument).Implicit.Should().BeTrue();
+                result.GetValue(argument).Should().Be(7);
+                result.GetRequiredValue(argument).Should().Be(7);
+                result.GetValue<int>("value").Should().Be(7);
+            });
+
+            var parseResult = root.Parse("");
+
+            parseResult.Errors.Should().BeEmpty();
+            parseResult.GetValue(argument).Should().Be(7);
+        }
+
+        [Fact]
+        public void Default_values_read_by_command_validators_can_depend_on_other_default_values()
+        {
+            var argument = new Argument<int>("value") { DefaultValueFactory = _ => 7 };
+            var option = new Option<int>("--incremented")
+            {
+                DefaultValueFactory = result => result.GetValue(argument) + 1
+            };
+            var root = new RootCommand { option, argument };
+            root.Validators.Add(result => result.GetValue(option).Should().Be(8));
+
+            var parseResult = root.Parse("");
+
+            parseResult.Errors.Should().BeEmpty();
+            parseResult.GetValue(option).Should().Be(8);
+        }
+
+        [Fact]
+        public void Command_validator_errors_do_not_evaluate_unread_default_values()
+        {
+            var factoryWasCalled = false;
+            var option = new Option<int>("--value")
+            {
+                DefaultValueFactory = _ =>
+                {
+                    factoryWasCalled = true;
+                    return 1;
+                }
+            };
+            var root = new RootCommand { option };
+            root.Validators.Add(result => result.AddError("Invalid command."));
+
+            var parseResult = root.Parse("");
+
+            parseResult.Errors.Should().ContainSingle().Which.Message.Should().Be("Invalid command.");
+            factoryWasCalled.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Command_validators_do_not_evaluate_defaults_from_unselected_commands()
+        {
+            var factoryWasCalled = false;
+            var option = new Option<int>("--value")
+            {
+                DefaultValueFactory = _ =>
+                {
+                    factoryWasCalled = true;
+                    return 1;
+                }
+            };
+            var selected = new Command("selected");
+            var root = new RootCommand { selected, new Command("other") { option } };
+            selected.Validators.Add(result => result.GetValue(option).Should().Be(0));
+
+            var parseResult = root.Parse("selected");
+
+            parseResult.Errors.Should().BeEmpty();
+            factoryWasCalled.Should().BeFalse();
+        }
+
         [Fact]
         public void GetValue_in_command_validator_does_not_suppress_option_argument_validation_errors()
         {
