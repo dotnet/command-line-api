@@ -199,7 +199,7 @@ namespace System.CommandLine
                 {
                     result.AddError(LocalizationResources.DirectoryDoesNotExist(token.Value));
                 }
-                else if (checkFile && !Directory.Exists(token.Value) && !File.Exists(token.Value))
+                else if (checkFile && !File.Exists(token.Value))
                 {
                     result.AddError(LocalizationResources.FileDoesNotExist(token.Value));
                 }
