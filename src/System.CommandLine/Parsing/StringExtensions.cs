@@ -334,6 +334,8 @@ namespace System.CommandLine.Parsing
             out IReadOnlyList<string>? newTokens,
             out string? error)
         {
+            string currentFilePath = filePath;
+
             try
             {
                 newTokens = ExpandResponseFile(filePath).ToArray();
@@ -342,18 +344,19 @@ namespace System.CommandLine.Parsing
             }
             catch (FileNotFoundException)
             {
-                error = LocalizationResources.ResponseFileNotFound(filePath);
+                error = LocalizationResources.ResponseFileNotFound(currentFilePath);
             }
             catch (IOException e)
             {
-                error = LocalizationResources.ErrorReadingResponseFile(filePath, e);
+                error = LocalizationResources.ErrorReadingResponseFile(currentFilePath, e);
             }
 
             newTokens = null;
             return false;
 
-            static IEnumerable<string> ExpandResponseFile(string filePath)
+            IEnumerable<string> ExpandResponseFile(string filePath)
             {
+                currentFilePath = filePath;
                 var lines = File.ReadAllLines(filePath);
 
                 for (var i = 0; i < lines.Length; i++)
