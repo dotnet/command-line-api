@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using static System.CommandLine.Binding.ArgumentConversionResult;
@@ -16,6 +17,11 @@ namespace System.CommandLine.Binding
         {
             switch (value)
             {
+                case Token singleValue when type.GetElementTypeIfEnumerable() is { } itemType &&
+                                            TryCreateEnumerable(type, itemType, 1) is { } values &&
+                                            type.IsInstanceOfType(values):
+                    return ConvertTokens(argumentResult, itemType, [singleValue], values, allowPartialConversion: false);
+
                 case Token singleValue:
                     return ConvertToken(argumentResult, type, singleValue);
 
@@ -87,6 +93,16 @@ namespace System.CommandLine.Binding
         {
             var itemType = type.GetElementTypeIfEnumerable() ?? typeof(string);
             var values = CreateEnumerable(type, itemType, tokens.Count);
+            return ConvertTokens(argumentResult, itemType, tokens, values, allowPartialConversion: argumentResult.Parent is CommandResult);
+        }
+
+        private static ArgumentConversionResult ConvertTokens(
+            ArgumentResult argumentResult,
+            Type itemType,
+            IReadOnlyList<Token> tokens,
+            IList values,
+            bool allowPartialConversion)
+        {
             var isArray = values is Array;
 
             for (var i = 0; i < tokens.Count; i++)
@@ -110,7 +126,7 @@ namespace System.CommandLine.Binding
                         break;
 
                     default: // failures
-                        if (argumentResult.Parent is CommandResult)
+                        if (allowPartialConversion)
                         {
                             argumentResult.OnlyTake(i);
 

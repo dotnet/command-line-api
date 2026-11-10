@@ -38,6 +38,10 @@ internal static partial class ArgumentConverter
     }
 
     internal static IList CreateEnumerable(Type type, Type itemType, int capacity = 0)
+        => TryCreateEnumerable(type, itemType, capacity)
+           ?? throw new ArgumentException($"Type {type} cannot be created without a custom binder.");
+
+    private static IList? TryCreateEnumerable(Type type, Type itemType, int capacity)
     {
         if (type.IsArray)
         {
@@ -61,6 +65,6 @@ internal static partial class ArgumentConverter
             }
         }
 
-        throw new ArgumentException($"Type {type} cannot be created without a custom binder.");
+        return null;
     }
 }
