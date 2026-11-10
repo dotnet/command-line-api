@@ -18,7 +18,8 @@ namespace System.CommandLine.Binding
             switch (value)
             {
                 case Token singleValue when type.GetElementTypeIfEnumerable() is { } itemType &&
-                                            TryCreateEnumerable(type, itemType, 1) is { } values:
+                                            TryCreateEnumerable(type, itemType, 1) is { } values &&
+                                            type.IsInstanceOfType(values):
                     return ConvertTokens(argumentResult, itemType, [singleValue], values, allowPartialConversion: false);
 
                 case Token singleValue:
