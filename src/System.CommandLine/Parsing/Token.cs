@@ -21,12 +21,13 @@ namespace System.CommandLine.Parsing
             Position = ImplicitPosition;
         }
        
-        internal Token(string? value, TokenType type, Symbol? symbol, int position)
+        internal Token(string? value, TokenType type, Symbol? symbol, int position, bool wasExplicitlyAssigned = false)
         {
             Value = value ?? "";
             Type = type;
             Symbol = symbol;
             Position = position;
+            WasExplicitlyAssigned = wasExplicitlyAssigned;
         }
 
         internal int Position { get; }
@@ -35,6 +36,27 @@ namespace System.CommandLine.Parsing
         /// The string value of the token.
         /// </summary>
         public string Value { get; }
+
+        /// <summary>
+        /// Indicates whether this token's value was supplied within the same command line argument as the
+        /// option it applies to, as in <c>--option=value</c>, <c>--option:value</c> or the bundled
+        /// <c>-ovalue</c>, rather than as a separate argument, as in <c>--option value</c>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The separator is removed during tokenization, so the two forms are otherwise indistinguishable.
+        /// This property preserves the distinction for the cases where it carries meaning, most notably
+        /// when the value itself looks like an option. <c>--option=--value</c> unambiguously assigns
+        /// <c>--value</c>, whereas <c>--option --value</c> is just as likely to be a mistyped option or a
+        /// forgotten argument. Preserving that lets a custom parser or a validator accept the former while
+        /// rejecting the latter.
+        /// </para>
+        /// <para>
+        /// This is only ever <see langword="true" /> for <see cref="TokenType.Argument"/> tokens that were
+        /// produced by splitting a single command line argument.
+        /// </para>
+        /// </remarks>
+        public bool WasExplicitlyAssigned { get; }
 
         internal bool Implicit => Position == ImplicitPosition;
 
