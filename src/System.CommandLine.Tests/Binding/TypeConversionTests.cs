@@ -107,6 +107,17 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Option_of_array_of_FileInfo_with_max_arity_1_converts_one_value()
+        {
+            var option = new Option<FileInfo[]>("--file") { Arity = ArgumentArity.ExactlyOne };
+
+            GetValue(option, "--file file.txt")
+                .Select(file => file.Name)
+                .Should()
+                .Equal("file.txt");
+        }
+
+        [Fact]
         public void Argument_defaults_arity_to_One_for_non_IEnumerable_types()
         {
             var argument = new Argument<int>("arg");
@@ -699,7 +710,7 @@ namespace System.CommandLine.Tests.Binding
         {
             foreach (int minArity in new[] { 0, 1 })
             {
-                foreach (int maxArity in new[] { 3, 100_000 })
+                foreach (int maxArity in new[] { 1, 3, 100_000 })
                 {
                     yield return new object[] { minArity, maxArity, new Option<string[]>("--items") };
                     yield return new object[] { minArity, maxArity, new Option<IEnumerable<string>>("--items") };
@@ -712,7 +723,7 @@ namespace System.CommandLine.Tests.Binding
 
         [Theory]
         [MemberData(nameof(AritiesAndEnumerableTypes))]
-        public void Max_arity_greater_than_1_converts_to_enumerable_types(
+        public void Option_values_convert_to_enumerable_types(
             int minArity,
             int maxArity,
             Option option)
@@ -724,10 +735,13 @@ namespace System.CommandLine.Tests.Binding
                 option
             };
 
-            var result = command.Parse("--items one --items two --items three");
+            var result = command.Parse(maxArity == 1 ? "--items one" : "--items one --items two --items three");
+            string[] expected = maxArity == 1 ? ["one"] : ["one", "two", "three"];
 
             result.Errors.Should().BeEmpty();
-            result.GetResult(option).GetValueOrDefault<object>().Should().BeAssignableTo(option.ValueType);
+            var value = result.GetResult(option).GetValueOrDefault<object>();
+            value.Should().BeAssignableTo(option.ValueType);
+            ((IEnumerable<string>)value).Should().Equal(expected);
         }
 
         [Fact]
