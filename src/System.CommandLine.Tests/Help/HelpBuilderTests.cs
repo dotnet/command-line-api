@@ -212,6 +212,30 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        public void Usage_section_for_subcommand_omits_non_recursive_parent_arguments()
+        {
+            var inner = new Command("inner", "command help")
+            {
+                new Option<string>("-v") { Description = "Sets the verbosity" },
+                new Argument<string[]>("inner-args")
+            };
+            _ = new Command("outer", "command help")
+            {
+                inner,
+                new Argument<string[]>("outer-args") { Recursive = false }
+            };
+
+            _helpBuilder.Write(inner, _console);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}outer inner [<inner-args>...] [options]";
+
+            _console.ToString().Should().Contain(expected);
+            _console.ToString().Should().NotContain("<outer-args>");
+        }
+
+        [Fact]
         public void Usage_section_does_not_show_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_not_specified()
         {
             var command = new Command(

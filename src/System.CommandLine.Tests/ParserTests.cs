@@ -1227,6 +1227,26 @@ namespace System.CommandLine.Tests
                   .BeEquivalentSequenceTo("one", "two", "three", "subcommand", "four");
         }
 
+        [Fact]
+        public void Non_recursive_parent_argument_is_unmatched_when_subcommand_is_invoked()
+        {
+            var rootArg = new Argument<string>("rootArg") { Recursive = false };
+            var subcommand = new Command("subcommand");
+            var root = new RootCommand
+            {
+                rootArg,
+                subcommand
+            };
+
+            var result = root.Parse("value subcommand");
+
+            result.CommandResult.Command.Should().BeSameAs(subcommand);
+            result.UnmatchedTokens.Should().BeEquivalentTo("value");
+            result.Errors.Should().ContainSingle(e =>
+                e.Message == LocalizationResources.UnrecognizedCommandOrArgument("value"));
+            result.GetValue(rootArg).Should().BeNull();
+        }
+
         [Theory]
         [InlineData("-x=-y")]
         [InlineData("-x:-y")]

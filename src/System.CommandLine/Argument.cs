@@ -182,5 +182,11 @@ namespace System.CommandLine
 
             public override bool HasDefaultValue => false;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this argument is inherited by child commands.
+        /// </summary>
+        public bool Recursive { get; set; } = true;  
+
     }
 }
