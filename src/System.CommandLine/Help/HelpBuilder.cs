@@ -296,16 +296,17 @@ namespace System.CommandLine.Help
                         ? "..."
                         : "";
 
+                var argumentName = string.IsNullOrWhiteSpace(argument.HelpName) ? argument.Name : argument.HelpName;
                 var isOptional = IsOptional(argument);
 
                 if (isOptional)
                 {
-                    sb.Append($"[<{argument.Name}>{arityIndicator}");
+                    sb.Append($"[<{argumentName}>{arityIndicator}");
                     (end ??= []).Add(']');
                 }
                 else
                 {
-                    sb.Append($"<{argument.Name}>{arityIndicator}");
+                    sb.Append($"<{argumentName}>{arityIndicator}");
                 }
 
                 sb.Append(' ');
