@@ -1627,6 +1627,29 @@ namespace System.CommandLine.Tests
         }
         
         [Fact]
+        public void When_required_argument_is_missing_then_an_error_is_returned()
+        {
+            var command = new Command("the-command")
+            {
+                new Argument<string>("arg0"),
+                new Argument<string>("missing-arg1"),
+                new Argument<string>("missing-arg2")
+            };
+
+            var result = command.Parse("value-for-arg1");
+
+            result.Errors
+                .Select(e => e.Message)
+                .Should()
+                .BeEquivalentTo(
+                    // "Required argument 'missing-arg1' missing for command: 'the-command'."
+                    LocalizationResources.RequiredArgumentMissing(result.GetResult(command.Arguments[1])),
+                    // "Required argument 'missing-arg2' missing for command: 'the-command'."
+                    LocalizationResources.RequiredArgumentMissing(result.GetResult(command.Arguments[2]))
+                );
+        }
+        
+        [Fact]
         public void Tokens_are_not_split_if_the_part_before_the_delimiter_is_not_an_option()
         {
             var rootCommand = new Command("jdbc");

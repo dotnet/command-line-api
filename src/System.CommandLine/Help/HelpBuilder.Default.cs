@@ -24,16 +24,18 @@ internal partial class HelpBuilder
             return symbol switch
             {
                 Argument argument => ShouldShowDefaultValue(argument) 
-                                         ? ToString(argument.GetDefaultValue()) 
+                                         ? ToString(argument.GetDefaultValue(), argument.ValueType) 
                                          : "",
                 Option option => ShouldShowDefaultValue(option) 
-                                     ? ToString(option.GetDefaultValue()) 
+                                     ? ToString(option.GetDefaultValue(), option.ValueType) 
                                      : "",
                 _ => throw new InvalidOperationException("Symbol must be an Argument or Option.")
             };
 
-            static string ToString(object? value) => value switch
+            static string ToString(object? value, Type valueType) => value switch
             {
+                _ when (valueType == typeof(bool) || valueType == typeof(bool?)) && value is not true => string.Empty,
+                bool boolValue => boolValue ? "true" : "false",
                 null => string.Empty,
                 string str => str,
                 IEnumerable enumerable => string.Join("|", enumerable.Cast<object>()),
@@ -50,12 +52,10 @@ internal partial class HelpBuilder
             };
 
         public static bool ShouldShowDefaultValue(Option option) =>
-            option.HasDefaultValue && 
-            !(option.ValueType == typeof(bool) || option.ValueType == typeof(bool?));
+            option.HasDefaultValue;
 
         public static bool ShouldShowDefaultValue(Argument argument) =>
-            argument.HasDefaultValue && 
-            !(argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?));
+            argument.HasDefaultValue;
 
         /// <summary>
         /// Gets the description for an argument (typically used in the second column text in the arguments section).

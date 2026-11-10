@@ -11,17 +11,17 @@ namespace System.CommandLine
     public class ParserConfiguration
     {
         /// <summary>
-        /// Enables the parser to recognize and expand POSIX-style bundled options.
+        /// Gets or sets a value that indicates whether the parser recognizes and expands POSIX-style bundled options.
         /// </summary>
-        /// <param name="value"><see langword="true"/> to parse POSIX bundles; otherwise, <see langword="false"/>.</param>
+        /// <value><see langword="true"/> to parse POSIX bundles; otherwise, <see langword="false"/>.</value>
         /// <remarks>
         /// POSIX conventions recommend that single-character options be allowed to be specified together after a single <c>-</c> prefix. When <see cref="EnablePosixBundling"/> is set to <see langword="true"/>, the following command lines are equivalent:
-        /// 
+        ///
         /// <code>
         ///     &gt; myapp -a -b -c
         ///     &gt; myapp -abc
         /// </code>
-        /// 
+        ///
         /// If an argument is provided after an option bundle, it applies to the last option in the bundle. When <see cref="EnablePosixBundling"/> is set to <see langword="true"/>, all of the following command lines are equivalent:
         /// <code>
         ///     &gt; myapp -a -b -c arg
@@ -33,11 +33,11 @@ namespace System.CommandLine
         public bool EnablePosixBundling { get; set; } = true;
 
         /// <summary>
-        /// Response file token replacer, enabled by default.
-        /// To disable response files support, this property needs to be set to null.
+        /// Gets or sets the response file token replacer.
         /// </summary>
+        /// <value><see langword="null"/> to disable response files support. By default, the response file token replacer is enabled.</value>
         /// <remarks>
-        /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
+        /// When enabled, any token prefixed with <c>@</c> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
         public TryReplaceToken? ResponseFileTokenReplacer { get; set; } = StringExtensions.TryReadResponseFile;
     }

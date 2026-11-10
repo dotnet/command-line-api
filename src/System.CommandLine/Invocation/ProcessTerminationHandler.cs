@@ -14,20 +14,20 @@ internal sealed class ProcessTerminationHandler : IDisposable
         
     internal readonly TaskCompletionSource<int> ProcessTerminationCompletionSource;
     private readonly CancellationTokenSource _handlerCancellationTokenSource;
-    private readonly Task<int> _startedHandler;
+    private Task<int>? _startedHandler;
     private readonly TimeSpan _processTerminationTimeout;
 #if NET7_0_OR_GREATER
     private readonly IDisposable? _sigIntRegistration, _sigTermRegistration;
 #endif
-        
+
+    internal Task<int> StartedHandler { set => Volatile.Write(ref _startedHandler, value); }
+
     internal ProcessTerminationHandler(
         CancellationTokenSource handlerCancellationTokenSource, 
-        Task<int> startedHandler,
         TimeSpan processTerminationTimeout)
     {
         ProcessTerminationCompletionSource = new ();
         _handlerCancellationTokenSource = handlerCancellationTokenSource;
-        _startedHandler = startedHandler;
         _processTerminationTimeout = processTerminationTimeout;
 
 #if NET7_0_OR_GREATER // we prefer the new API as they allow for cancelling SIGTERM
@@ -86,8 +86,9 @@ internal sealed class ProcessTerminationHandler : IDisposable
 
         try
         {
+            var startedHandler = Volatile.Read(ref _startedHandler);
             // wait for the configured interval
-            if (!_startedHandler.Wait(_processTerminationTimeout))
+            if (startedHandler is null || !startedHandler.Wait(_processTerminationTimeout))
             {
                 // if the handler does not finish within configured time,
                 // use the completion source to signal forced completion (preserving native exit code)

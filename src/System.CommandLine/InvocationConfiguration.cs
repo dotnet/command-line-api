@@ -9,23 +9,30 @@ public class InvocationConfiguration
     private TextWriter? _output, _error;
 
     /// <summary>
-    /// Enables a default exception handler to catch any unhandled exceptions thrown during invocation. Enabled by default.
+    /// Gets or sets a value that indicates whether a default exception handler catches any unhandled exceptions thrown during invocation.
     /// </summary>
+    /// <value><see langword="true"/> if a default exception handler catches any unhandled exceptions thrown during invocation. The default is <see langword="true"/>.</value>
     public bool EnableDefaultExceptionHandler { get; set; } = true;
 
     /// <summary>
-    /// Enables signaling and handling of process termination (Ctrl+C, SIGINT, SIGTERM) via a <see cref="CancellationToken"/> 
+    /// Gets or sets a time span that enables signaling and handling of process termination (Ctrl+C, SIGINT, SIGTERM) via a <see cref="CancellationToken"/>
     /// that can be passed to a <see cref="CommandLineAction"/> during invocation.
-    /// If not provided, a default timeout of 2 seconds is enforced.
     /// </summary>
-    public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2); 
+    /// <value>The default is two seconds.</value>
+    /// <remarks>
+    /// If this property is set to <see langword="null" />, the termination request isn't handled by System.CommandLine. In that case, the process is terminated immediately unless some other part of the program adds a handler.
+    /// </remarks>
+    public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2);
 
     /// <summary>
-    /// The standard output. Used by Help and other facilities that write non-error information.
-    /// By default it's set to <see cref="Console.Out"/>.
-    /// For testing purposes, it can be set to a new instance of <see cref="StringWriter"/>.
-    /// If you want to disable the output, please set it to <see cref="TextWriter.Null"/>.
+    /// Gets or sets the standard output.
     /// </summary>
+    /// <value>The default is set to <see cref="Console.Out"/>.</value>
+    /// <remarks>
+    /// The standard output is used by Help and other facilities that write non-error information.
+    /// For testing purposes, it can be set to a new instance of <see cref="StringWriter"/>.
+    /// If you want to disable the output, set it to <see cref="TextWriter.Null"/>.
+    /// </remarks>
     public TextWriter Output
     {
         get => _output ??= Console.Out;
@@ -33,10 +40,12 @@ public class InvocationConfiguration
     }
 
     /// <summary>
-    /// The standard error. Used for printing error information like parse errors.
-    /// By default it's set to <see cref="Console.Error"/>.
-    /// For testing purposes, it can be set to a new instance of <see cref="StringWriter"/>.
+    /// Gets or sets the standard error used for printing error information like parse errors.
     /// </summary>
+    /// <value>The default is set to <see cref="Console.Error"/>.</value>
+    /// <remarks>
+    /// For testing purposes, it can be set to a new instance of <see cref="StringWriter"/>.
+    /// </remarks>
     public TextWriter Error
     {
         get => _error ??= Console.Error;

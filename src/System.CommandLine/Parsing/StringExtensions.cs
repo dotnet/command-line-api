@@ -275,6 +275,13 @@ namespace System.CommandLine.Parsing
                     return true;
                 }
 
+                if (args[0].TrySplitIntoSubtokens(out var first, out _) &&
+                    rootCommand.ValidTokens().TryGetValue(first, out var token) &&
+                    token.Type == TokenType.Option)
+                {
+                    return false;
+                }
+
                 try
                 {
                     var potentialRootCommand = Path.GetFileName(args[0]);

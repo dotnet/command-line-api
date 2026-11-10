@@ -62,17 +62,17 @@ namespace System.CommandLine
         internal static ParseResult Empty() => new RootCommand().Parse(Array.Empty<string>());
 
         /// <summary>
-        /// A result indicating the command specified in the command line input.
+        /// Gets a result indicating the command specified in the command line input.
         /// </summary>
         public CommandResult CommandResult { get; }
 
         /// <summary>
-        /// The configuration used to produce the parse result.
+        /// Gets the configuration used to produce the parse result.
         /// </summary>
         public ParserConfiguration Configuration { get; }
 
         /// <summary>
-        /// The configuration used to specify command line runtime behavior.
+        /// Gets the configuration used to specify command line run-time behavior.
         /// </summary>
         public InvocationConfiguration InvocationConfiguration
         {
@@ -86,19 +86,19 @@ namespace System.CommandLine
         public CommandResult RootCommandResult => _rootCommandResult;
 
         /// <summary>
-        /// Gets the parse errors found while parsing command line input.
+        /// Gets the parse errors found while parsing command-line input.
         /// </summary>
         public IReadOnlyList<ParseError> Errors { get; }
 
         /// <summary>
-        /// Gets the tokens identified while parsing command line input.
+        /// Gets the tokens identified while parsing command-line input.
         /// </summary>
         public IReadOnlyList<Token> Tokens { get; }
 
         /// <summary>
-        /// Holds the value of a complete command line input prior to splitting and tokenization, when provided.
+        /// Gets the value of a complete command line input prior to splitting and tokenization, when provided.
         /// </summary>
-        /// <remarks>This will not be set when the parser is called from <c>Program.Main</c>. It is primarily used when calculating suggestions via the <c>dotnet-suggest</c> tool.</remarks>
+        /// <remarks>This value will not be set when the parser is called from <c>Program.Main</c>. It is primarily used when calculating suggestions via the <c>dotnet-suggest</c> tool.</remarks>
         internal string? CommandLineText { get; }
 
         /// <summary>
@@ -137,9 +137,9 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the Symbol for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when parsing resulted in parse error(s).</exception>
-        /// <exception cref="ArgumentException">Thrown when there was no symbol defined for given name for the parsed command.</exception>
-        /// <exception cref="InvalidCastException">Thrown when parsed result can not be cast to <typeparamref name="T"/>.</exception>
+        /// <exception cref="InvalidOperationException">Parsing resulted in one or more errors.</exception>
+        /// <exception cref="ArgumentException">No symbol was defined for the given name for the parsed command.</exception>
+        /// <exception cref="InvalidCastException">The parsed result cannot be cast to <typeparamref name="T"/>.</exception>
         public T? GetValue<T>(string name)
             => RootCommandResult.GetValue<T>(name);
 
@@ -148,7 +148,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when required argument was not parsed or has no default value configured.</exception>
+        /// <exception cref="InvalidOperationException">The required argument was not parsed or has no default value configured.</exception>
         public T GetRequiredValue<T>(Argument<T> argument)
             => RootCommandResult.GetRequiredValue(argument);
 
@@ -157,18 +157,18 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when required option was not parsed or has no default value configured.</exception>
+        /// <exception cref="InvalidOperationException">The required option was not parsed or has no default value configured.</exception>
         public T GetRequiredValue<T>(Option<T> option)
             => RootCommandResult.GetRequiredValue(option);
 
         /// <summary>
-        /// Gets the parsed or default value for the specified required symbol name, in the context of parsed command (not entire symbol tree).
+        /// Gets the parsed or default value for the specified required symbol name in the context of the parsed command (not entire symbol tree).
         /// </summary>
-        /// <param name="name">The name of the required Symbol for which to get a value.</param>
+        /// <param name="name">The name of the required symbol for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when parsing resulted in parse error(s) or required symbol was not parsed or has no default value configured.</exception>
-        /// <exception cref="ArgumentException">Thrown when there was no symbol defined for given name for the parsed command.</exception>
-        /// <exception cref="InvalidCastException">Thrown when parsed result can not be cast to <typeparamref name="T"/>.</exception>
+        /// <exception cref="InvalidOperationException">Parsing resulted in one or more errors, or the required symbol was not parsed or has no default value configured.</exception>
+        /// <exception cref="ArgumentException">No symbol was defined for the given name for the parsed command.</exception>
+        /// <exception cref="InvalidCastException">The parsed result cannot be cast to <typeparamref name="T"/>.</exception>
         public T GetRequiredValue<T>(string name)
             => RootCommandResult.GetRequiredValue<T>(name);
 
@@ -218,7 +218,7 @@ namespace System.CommandLine
         /// Finds a result for a symbol having the specified name anywhere in the parse tree.
         /// </summary>
         /// <param name="name">The name of the symbol for which to find a result.</param>
-        /// <returns>An symbol result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
+        /// <returns>A symbol result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public SymbolResult? GetResult(string name) =>
             _rootCommandResult.SymbolResultTree.GetResult(name);
 
@@ -270,13 +270,13 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Invokes the appropriate command handler for a parsed command line input.
+        /// Invokes the appropriate command handler for a parsed command-line input.
         /// </summary>
         /// <param name="configuration">The configuration used to define invocation behaviors.</param>
         /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
         /// <returns>A task whose result can be used as a process exit code.</returns>
         public Task<int> InvokeAsync(
-            InvocationConfiguration? configuration = null, 
+            InvocationConfiguration? configuration = null,
             CancellationToken cancellationToken = default)
         {
             if (configuration is not null)
@@ -288,7 +288,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Invokes the appropriate command handler for a parsed command line input.
+        /// Invokes the appropriate command handler for a parsed command-line input.
         /// </summary>
         /// <param name="configuration">The configuration used to define invocation behaviors.</param>
         /// <returns>A value that can be used as a process exit code.</returns>

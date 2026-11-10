@@ -28,8 +28,8 @@
         <note />
       </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
-        <source>Required argument missing for command: '{0}'.</source>
-        <target state="translated">Chybí povinný argument pro příkaz: '{0}'.</target>
+        <source>Required argument '{0}' missing for command: '{1}'.</source>
+        <target state="translated">Chybí povinný argument '{0}' pro příkaz: '{1}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="DirectoryDoesNotExist">

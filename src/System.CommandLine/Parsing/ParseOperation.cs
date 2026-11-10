@@ -98,7 +98,29 @@ namespace System.CommandLine.Parsing
 
             while (More(out TokenType currentTokenType))
             {
-                if (currentTokenType == TokenType.Command)
+                // Advance past arguments whose arity has been filled so that
+                // IsCapturingRemainingTokens checks the correct argument.
+                var arguments = _innermostCommandResult.Command.Arguments;
+                while (currentArgumentIndex < arguments.Count &&
+                       currentArgumentCount >= arguments[currentArgumentIndex].Arity.MaximumNumberOfValues)
+                {
+                    currentArgumentCount = 0;
+                    currentArgumentIndex++;
+                }
+
+                // When the next argument to fill captures remaining tokens,
+                // consume tokens regardless of type. DoubleDash tokens encountered
+                // before capture starts (in this dispatch) are still handled normally,
+                // but once inside ParseCommandArguments they are captured as values.
+                // For non-Argument tokens (options, commands), only capture after at least one
+                // positional argument has been filled, so that leading options are parsed normally.
+                if (currentTokenType != TokenType.DoubleDash &&
+                    IsCapturingRemainingTokens(currentArgumentIndex) &&
+                    (currentTokenType == TokenType.Argument || currentArgumentIndex > 0 || currentArgumentCount > 0))
+                {
+                    ParseCommandArguments(ref currentArgumentCount, ref currentArgumentIndex, captureRemaining: true);
+                }
+                else if (currentTokenType == TokenType.Command)
                 {
                     ParseSubcommand();
                 }
@@ -118,9 +140,18 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void ParseCommandArguments(ref int currentArgumentCount, ref int currentArgumentIndex)
+        private bool IsCapturingRemainingTokens(int currentArgumentIndex)
         {
-            while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Argument)
+            var arguments = _innermostCommandResult.Command.Arguments;
+            return currentArgumentIndex < arguments.Count &&
+                   arguments[currentArgumentIndex].CaptureRemainingTokens;
+        }
+
+        private void ParseCommandArguments(ref int currentArgumentCount, ref int currentArgumentIndex, bool captureRemaining = false)
+        {
+            while (More(out TokenType currentTokenType) &&
+                   (currentTokenType == TokenType.Argument ||
+                    captureRemaining))
             {
                 while (_innermostCommandResult.Command.HasArguments && currentArgumentIndex < _innermostCommandResult.Command.Arguments.Count)
                 {
@@ -128,9 +159,8 @@ namespace System.CommandLine.Parsing
 
                     if (currentArgumentCount < argument.Arity.MaximumNumberOfValues)
                     {
-                        if (CurrentToken.Symbol is null)
+                        if (captureRemaining || CurrentToken.Symbol is null)
                         {
-                            // update the token with missing information now, so later stages don't need to modify it
                             CurrentToken.Symbol = argument;
                         }
 
@@ -164,6 +194,13 @@ namespace System.CommandLine.Parsing
 
                 if (currentArgumentCount == 0) // no matching arguments found
                 {
+                    if (captureRemaining)
+                    {
+                        // Return to ParseCommandChildren so that overflow tokens
+                        // are dispatched normally (e.g. as options or subcommands).
+                        break;
+                    }
+
                     AddCurrentTokenToUnmatched();
                     Advance();
                 }
@@ -342,6 +379,18 @@ namespace System.CommandLine.Parsing
             _preActions.Add(action);
         }
 
+        private void AddPreActionsForImplicitOptions()
+        {
+            foreach (var kvp in _symbolResultTree)
+            {
+                if (kvp is { Key: Option { Action: { Terminating: false } action }, Value: OptionResult { Implicit: true } } && 
+                    _primaryAction != action)
+                {
+                    AddPreAction(action);
+                }
+            }
+        }
+
         private void AddCurrentTokenToUnmatched()
         {
             if (CurrentToken.Type == TokenType.DoubleDash)
@@ -435,6 +484,8 @@ namespace System.CommandLine.Parsing
                     }
                 }
             }
+
+            AddPreActionsForImplicitOptions();
         }
     }
 }

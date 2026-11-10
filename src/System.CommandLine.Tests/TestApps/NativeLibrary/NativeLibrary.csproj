@@ -1,0 +1,48 @@
+<!-- Uses the explicit SDK import form (rather than the Sdk="..." attribute) so the
+     System.CommandLine targets can be imported AFTER Sdk.targets - the same position a
+     NuGet package's build/ targets are imported for a real consumer. By then the SDK has
+     fully resolved IntermediateOutputPath (including the TFM/RID suffix), TargetFrameworkVersion,
+     Language, etc., mirroring how a real package consumer sees them. -->
+<Project>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <TargetFramework>$(NetMinimum)</TargetFramework>
+    <!-- Build as a NativeAOT shared library. In this hosting model there is no
+         managed entry point (Assembly.GetEntryAssembly() returns null) and
+         Environment.GetCommandLineArgs() reflects the host process - the exact
+         condition RootCommand's executable-name fallback (issue #2812) handles. -->
+    <NativeLib>Shared</NativeLib>
+    <PublishAot>true</PublishAot>
+    <!-- Preserve the runtime configuration hook until https://github.com/dotnet/sdk/issues/56912 is resolved. -->
+    <UseOptimizedPublish>false</UseOptimizedPublish>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <ControlFlowGuard>Guard</ControlFlowGuard>
+    <IsTestUtilityProject>true</IsTestUtilityProject>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SystemCommandLineDllPath Condition="'$(SystemCommandLineDllPath)'==''">..\..\..\System.CommandLine\bin\Release\$(NetMinimum)\System.CommandLine.dll</SystemCommandLineDllPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="SystemCommandLineDll">
+      <HintPath>$(SystemCommandLineDllPath)</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <SystemCommandLineTargetsPath Condition="'$(SystemCommandLineTargetsPath)'==''">$(MSBuildThisFileDirectory)..\System.CommandLine.targets</SystemCommandLineTargetsPath>
+  </PropertyGroup>
+
+  <!-- The build targets are normally imported automatically from the NuGet
+       package's build/ folder. Because this test references the raw assembly,
+       import them explicitly so the executable-name configProperty is emitted
+       for this NativeLib build. Imported after Sdk.targets so it sees
+       fully-resolved SDK properties, mirroring a real package consumer. -->
+  <Import Project="$(SystemCommandLineTargetsPath)" />
+
+</Project>

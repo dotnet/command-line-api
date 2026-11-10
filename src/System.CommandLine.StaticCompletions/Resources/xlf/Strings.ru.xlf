@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="ru" original="../Strings.resx">
+    <body>
+      <trans-unit id="BashShellProvider.HelpDescription">
+        <source>Generates a completion script for the Bourne Again SHell (bash).</source>
+        <target state="translated">Создает сценарий завершения для Bourne Again SHell (bash).</target>
+        <note>{Locked="Bourne Again SHell (bash)"}</note>
+      </trans-unit>
+      <trans-unit id="CompletionsCommand.Description">
+        <source>Commands for generating and registering completions for supported shells</source>
+        <target state="translated">Команды создания и регистрации завершений для поддерживаемых оболочек</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="CompletionsCommand.ShellArgument.Description">
+        <source>The shell for which to generate or register completions</source>
+        <target state="translated">Оболочка, для которой необходимо создать или зарегистрировать завершения</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="FishShellProvider.HelpDescription">
+        <source>Generates a completion script for the Fish shell.</source>
+        <target state="translated">Создает сценарий завершения для оболочки Fish.</target>
+        <note>{Locked="Fish"}</note>
+      </trans-unit>
+      <trans-unit id="GenerateCommand.Description">
+        <source>Generate the completion script for a supported shell</source>
+        <target state="translated">Создать сценарий завершения для поддерживаемой оболочки</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="GenerateCommand.SuggestDirectiveDisabledWarning">
+        <source>warning: this application has completions that are resolved dynamically, but the [suggest] directive is not enabled on the root command. Dynamic completions will not work in the generated script.</source>
+        <target state="new">warning: this application has completions that are resolved dynamically, but the [suggest] directive is not enabled on the root command. Dynamic completions will not work in the generated script.</target>
+        <note>{Locked="[suggest]"}</note>
+      </trans-unit>
+      <trans-unit id="NuShellShellProvider.HelpDescription">
+        <source>Generates a completion script for the NuShell shell.</source>
+        <target state="translated">Создает сценарий завершения для оболочки NuShell.</target>
+        <note>{Locked="Zsh"}</note>
+      </trans-unit>
+      <trans-unit id="PowershellShellProvider.HelpDescription">
+        <source>Generates a completion script for PowerShell Core. These scripts will not work on Windows PowerShell.</source>
+        <target state="translated">Создает сценарий завершения для PowerShell Core. Эти сценарии не будут работать в Windows PowerShell.</target>
+        <note>{Locked="PowerShell Core"}</note>
+      </trans-unit>
+      <trans-unit id="ShellDiscovery.ShellEnvironmentNotSet">
+        <source>Could not determine the shell from the environment - the SHELL environment variable was not set.</source>
+        <target state="translated">Не удалось определить оболочку из среды — переменная среды SHELL не задана.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ShellDiscovery.ShellNotSupported">
+        <source>The shell application '{0}' is not supported. The following shells are supported by this application: {1} </source>
+        <target state="translated">Приложение оболочки "{0}" не поддерживается. Это приложение поддерживает следующие оболочки: {1} </target>
+        <note>0 is an application name, 1 is comma-separated list of application names</note>
+      </trans-unit>
+      <trans-unit id="ZshShellProvider.HelpDescription">
+        <source>Generates a completion script for the Zsh shell.</source>
+        <target state="translated">Создает сценарий завершения для оболочки Zsh.</target>
+        <note>{Locked="Zsh"}</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

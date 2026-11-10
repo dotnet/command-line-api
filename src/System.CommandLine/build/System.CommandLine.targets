@@ -1,0 +1,36 @@
+<Project>
+
+  <!-- Surface the executable name to the runtime as a runtimeconfig.json configProperty. The
+       SDK writes RuntimeHostConfigurationOption items into runtimeconfig.json, and the NativeAOT
+       ILC bakes the same values into the native image, so the value is available via
+       AppContext.GetData in both the managed and native-library hosting models.
+
+       RootCommand reads this as a fallback for its executable name when
+       Environment.GetCommandLineArgs() returns an empty array - notably when hosted as a
+       NativeAOT native library, which has no managed entry point (issue #2812). -->
+  <Target Name="_AddSystemCommandLineExecutableName"
+          DependsOnTargets="PrepareForBuild"
+          BeforeTargets="GenerateBuildRuntimeConfigurationFiles">
+
+    <PropertyGroup>
+      <_SystemCommandLineExecutableName Condition="'$(_SystemCommandLineExecutableName)' == ''">$(AssemblyName)</_SystemCommandLineExecutableName>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(_SystemCommandLineExecutableName)' != ''">
+      <RuntimeHostConfigurationOption Include="System.CommandLine.ExecutableName"
+                                      Value="$(_SystemCommandLineExecutableName)"
+                                      Trim="false" />
+    </ItemGroup>
+
+  </Target>
+
+  <!-- Emit the ToolCommandName as assembly metadata so RootCommand.HelpName can default to it at
+       runtime. Applies to direct and transitive consumers alike. -->
+  <ItemGroup Condition="'$(ToolCommandName)' != ''">
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>System.CommandLine.ToolCommandName</_Parameter1>
+      <_Parameter2>$(ToolCommandName)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>

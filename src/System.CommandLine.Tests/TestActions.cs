@@ -10,14 +10,17 @@ namespace System.CommandLine.Tests;
 public class SynchronousTestAction : SynchronousCommandLineAction
 {
     private readonly Action<ParseResult> _invoke;
+    private readonly int _returnValue;
 
     public SynchronousTestAction(
         Action<ParseResult> invoke,
         bool terminating = true,
-        bool clearsParseErrors = false)
+        bool clearsParseErrors = false,
+        int returnValue = 0)
     {
         ClearsParseErrors = clearsParseErrors;
         _invoke = invoke;
+        _returnValue = returnValue;
         Terminating = terminating;
     }
 
@@ -28,21 +31,24 @@ public class SynchronousTestAction : SynchronousCommandLineAction
     public override int Invoke(ParseResult parseResult)
     {
         _invoke(parseResult);
-        return 0;
+        return _returnValue;
     }
 }
 
 public class AsynchronousTestAction : AsynchronousCommandLineAction
 {
     private readonly Action<ParseResult> _invoke;
+    private readonly int _returnValue;
 
     public AsynchronousTestAction(
         Action<ParseResult> invoke,
         bool terminating = true,
-        bool clearsParseErrors = false)
+        bool clearsParseErrors = false,
+        int returnValue = 0)
     {
         ClearsParseErrors = clearsParseErrors;
         _invoke = invoke;
+        _returnValue = returnValue;
         Terminating = terminating;
     }
 
@@ -53,6 +59,6 @@ public class AsynchronousTestAction : AsynchronousCommandLineAction
     public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
     {
         _invoke(parseResult);
-        return Task.FromResult(0);
+        return Task.FromResult(_returnValue);
     }
 }

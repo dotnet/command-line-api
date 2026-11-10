@@ -14,11 +14,14 @@
     <IsTrimmable>true</IsTrimmable>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
-   
+
   <ItemGroup>
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis\System.Diagnostics.CodeAnalysis.cs" />
     <None Include="README.md" Pack="true" PackagePath="/README.md" />
+    <None Include="build/System.CommandLine.targets" Pack="true" PackagePath="build/" />
+    <None Include="build/System.CommandLine.targets" Pack="true" PackagePath="buildTransitive/" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -26,18 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx" GenerateSource="true">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources.resx" GenerateSource="true" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(NetMinimum)</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine.StaticCompletions\System.CommandLine.StaticCompletions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Verify.Xunit" />
+    <PackageReference Include="Verify.DiffPlex" />
+    <PackageReference Include="AwesomeAssertions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="snapshots/**/*" />
+    <Content Include="snapshots/**/*" CopyToOutputDirectory="PreserveNewest" Pack="false" />
+  </ItemGroup>
+
+</Project>

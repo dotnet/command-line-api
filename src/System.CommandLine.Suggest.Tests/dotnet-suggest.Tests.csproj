@@ -21,7 +21,8 @@
     <ProjectReference Include="EndToEndTestApp/EndToEndTestApp.csproj;
                                ../System.CommandLine.Suggest/dotnet-suggest.csproj"
                       AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(NETCoreSdkPortableRuntimeIdentifier);PublishDir=$(OutputPath)/TestAssets;PublishAfterBuild=true"
-                      ReferenceOutputAssembly="false" />
+                      ReferenceOutputAssembly="false"
+                      Private="false" />
   </ItemGroup>
 
 </Project>

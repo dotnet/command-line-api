@@ -7,11 +7,12 @@ using System.Linq;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing an <see cref="Argument"/>.
+    /// Represents a result produced when parsing an <see cref="Argument"/>.
     /// </summary>
     public sealed class ArgumentResult : SymbolResult
     {
         private ArgumentConversionResult? _conversionResult;
+        private bool _validatorsHaveBeenRun;
         private bool _onlyTakeHasBeenCalled;
 
         internal ArgumentResult(
@@ -23,7 +24,7 @@ namespace System.CommandLine.Parsing
         }
 
         /// <summary>
-        /// The argument to which the result applies.
+        /// Gets the argument to which the result applies.
         /// </summary>
         public Argument Argument { get; }
 
@@ -31,25 +32,44 @@ namespace System.CommandLine.Parsing
 
         public bool Implicit { get; private set; }
 
-        internal ArgumentConversionResult GetArgumentConversionResult() =>
-            _conversionResult ??= ValidateAndConvert(useValidators: true);
+        internal ArgumentConversionResult GetArgumentConversionResult()
+        {
+            if (_conversionResult is not null)
+            {
+                if (!_validatorsHaveBeenRun && Argument.HasValidators)
+                {
+                    // GetValueOrDefault was called before GetArgumentConversionResult,
+                    // which cached a conversion result without running validators.
+                    // Run them now so that validators like AcceptExistingOnly() are not skipped.
+                    _validatorsHaveBeenRun = true;
+                    for (var i = 0; i < Argument.Validators.Count; i++)
+                    {
+                        Argument.Validators[i](this);
+                    }
+                }
+
+                return _conversionResult;
+            }
+
+            return _conversionResult = ValidateAndConvert(useValidators: true);
+        }
 
         /// <summary>
         /// Gets the parsed value or the default value for <see cref="Argument"/>.
         /// </summary>
-        /// <returns>The parsed value or the default value for <see cref="Argument"/></returns>
+        /// <returns>The parsed value or the default value for <see cref="Argument"/>.</returns>
         public T GetValueOrDefault<T>() =>
             (_conversionResult ??= ValidateAndConvert(useValidators: false))
                 .ConvertIfNeeded(typeof(T))
                 .GetValueOrDefault<T>();
 
         /// <summary>
-        /// Specifies the maximum number of tokens to consume for the argument. Remaining tokens are passed on and can be consumed by later arguments, or will otherwise be added to <see cref="ParseResult.UnmatchedTokens"/>
+        /// Specifies the maximum number of tokens to consume for the argument. Remaining tokens are passed on and can be consumed by later arguments, or will otherwise be added to <see cref="ParseResult.UnmatchedTokens"/>.
         /// </summary>
         /// <param name="numberOfTokens">The number of tokens to take. The rest are passed on.</param>
-        /// <exception cref="ArgumentOutOfRangeException">numberOfTokens - Value must be at least 1.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if this method is called more than once.</exception>
-        /// <exception cref="NotSupportedException">Thrown if this method is called by Option-owned ArgumentResult.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><c>numberOfTokens - Value</c> must be at least 1.</exception>
+        /// <exception cref="InvalidOperationException">This method is called more than once.</exception>
+        /// <exception cref="NotSupportedException">An Option has a CustomParser delegate that receives an ArgumentResult as a parameter and calls the OnlyTake method of that ArgumentResult.</exception>
         public void OnlyTake(int numberOfTokens)
         {
             if (numberOfTokens < 0)
@@ -141,6 +161,8 @@ namespace System.CommandLine.Parsing
             //        => GetValueOrDefault => ValidateAndConvert (again)
             if (useValidators && Argument.HasValidators)
             {
+                _validatorsHaveBeenRun = true;
+
                 for (var i = 0; i < Argument.Validators.Count; i++)
                 {
                     Argument.Validators[i](this);
@@ -200,7 +222,7 @@ namespace System.CommandLine.Parsing
                 ArgumentConversionResult.ArgumentConversionCannotParse(
                     this,
                     Argument.ValueType,
-                    Tokens.Count > 0 
+                    Tokens.Count > 0
                         ? Tokens[0].Value
                         : ""));
 
@@ -218,7 +240,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Since Option.Argument is an internal implementation detail, this ArgumentResult applies to the OptionResult in public API if the parent is an OptionResult.
         /// </summary>
-        private SymbolResult AppliesToPublicSymbolResult => 
+        private SymbolResult AppliesToPublicSymbolResult =>
             Parent is OptionResult optionResult ? optionResult : this;
     }
 }

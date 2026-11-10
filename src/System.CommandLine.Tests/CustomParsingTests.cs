@@ -561,6 +561,23 @@ public class CustomParsingTests
         i.Should().Be(2);
     }
 
+    [Fact] // https://github.com/dotnet/command-line-api/issues/2743
+    public void Setting_CustomParser_to_null_reverts_to_default_parsing()
+    {
+        Argument<int> argument = new("int")
+        {
+            CustomParser = (_) => 0
+        };
+
+        argument.CustomParser = null;
+
+        var command = new RootCommand { argument };
+
+        var result = command.Parse("123");
+
+        result.GetValue(argument).Should().Be(123);
+    }
+
     [Fact]
     public void Default_value_factory_is_called_once_per_parse_operation_when_no_input_is_provided()
     {

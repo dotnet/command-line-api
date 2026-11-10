@@ -1,16 +1,6 @@
 <Project>
 
-  <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" Condition="'$(DisableArcade)' != '1'" />
-  
-  <PropertyGroup Condition="'$(DisableArcade)' == '1' and $(MSBuildProjectName.EndsWith('.Tests'))">
-    <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestResults\**</DefaultExcludesInProjectFolder>
-    <IsPackable>false</IsPackable>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(DisableArcade)' == '1' and $(MSBuildProjectName.EndsWith('.Tests'))">
-    <PackageReference Include="xunit" />
-    <PackageReference Include="xunit.runner.visualstudio" />
-  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
 	<Target Name="PublishAfterBuild"
          AfterTargets="Build"

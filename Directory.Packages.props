@@ -8,24 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Roslyn dependencies -->
+    <!-- maintenance-packages dependencies-->
+    <PackageVersion Include="System.Memory" Version="4.6.3" />
+    <!-- roslyn dependencies -->
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.0.1" />
-    <!-- Runtime dependencies -->
-    <PackageVersion Include="Microsoft.Bcl.Memory" Version="9.0.18" />
+    <!-- runtime dependencies -->
+    <PackageVersion Include="Microsoft.Bcl.Memory" Version="10.0.9" />
     <!-- external dependencies -->
     <PackageVersion Include="ApprovalTests" Version="7.0.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageVersion Include="AwesomeAssertions" Version="8.1.0" />
     <PackageVersion Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.6" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="System.Memory" Version="4.5.5" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(DisableArcade)' == '1'">
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <!-- The xunit version should be kept in sync with the one that Arcade promotes -->
-    <PackageVersion Include="xunit" Version="2.9.2" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageVersion Include="Verify.Xunit" Version="28.13.0" />
+    <PackageVersion Include="Verify.DiffPlex" Version="3.1.2" />
   </ItemGroup>
 
 </Project>

@@ -41,12 +41,22 @@ namespace System.CommandLine
         public bool HasDefaultValue => Argument.HasDefaultValue;
 
         /// <summary>
-        /// Gets or sets the name of the Option when displayed in help.
+        /// Gets or sets the placeholder name shown in usage help for the option's value.
+        /// The value will be wrapped in angle brackets (<c>&lt;</c> and <c>&gt;</c>).
         /// </summary>
+        /// <remarks>
+        /// If <c>null</c>, the <see cref="Symbol.Name"/> of the option will be used,
+        /// with leading dashes and slashes removed.
+        /// </remarks>
+        /// <example>
+        /// An option with <see cref="Symbol.Name"/> of <c>--option</c> and a
+        /// <see cref="HelpName"/> of <c>Value</c> will be shown in usage help as:
+        /// <c>--option &lt;Value&gt;</c>. If <see cref="HelpName"/> is not set,
+        /// help output will show: <c>--option &lt;option&gt;</c>.
+        /// </example>
         /// <value>
-        /// The name of the option when displayed in help.
+        /// The name to show as the placeholder for the option's value.
         /// </value>
-        /// <remarks>Useful for localization, as it's not used for actual parsing.</remarks>
         public string? HelpName
         {
             get => Argument.HelpName;

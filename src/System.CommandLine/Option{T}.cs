@@ -58,6 +58,17 @@ namespace System.CommandLine
         }
 
         /// <summary>
+        /// Configures the option to accept only the specified values using the specified comparer, and to suggest them as command line completions.
+        /// </summary>
+        /// <param name="comparer">The comparer used to match argument values against the allowed values.</param>
+        /// <param name="values">The values that are allowed for the option.</param>
+        public Option<T> AcceptOnlyFromAmong(StringComparer comparer, params string[] values)
+        {
+            _argument.AcceptOnlyFromAmong(comparer, values);
+            return this;
+        }
+
+        /// <summary>
         /// Configures the option to accept only values representing legal file paths.
         /// </summary>
         public Option<T> AcceptLegalFilePathsOnly()

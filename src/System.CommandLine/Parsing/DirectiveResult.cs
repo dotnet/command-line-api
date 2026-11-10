@@ -3,7 +3,7 @@
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing an <see cref="Directive"/>.
+    /// Represents a result produced when parsing a <see cref="Directive"/>.
     /// </summary>
     public sealed class DirectiveResult : SymbolResult
     {
@@ -17,18 +17,18 @@ namespace System.CommandLine.Parsing
         }
 
         /// <summary>
-        /// Parsed values of [name:value] directive(s).
+        /// Parsed values of <c>[name:value]</c> directives.
         /// </summary>
-        /// <remarks>Can be empty for [name] directives.</remarks>
+        /// <remarks>Can be empty for <c>[name]</c> directives.</remarks>
         public IReadOnlyList<string> Values => _values is null ? Array.Empty<string>() : _values;
 
         /// <summary>
-        /// The directive to which the result applies.
+        /// Gets the directive to which the result applies.
         /// </summary>
         public Directive Directive { get; }
 
         /// <summary>
-        /// The token that was parsed to specify the directive.
+        /// Gets the token that was parsed to specify the directive.
         /// </summary>
         public Token Token { get; }
 

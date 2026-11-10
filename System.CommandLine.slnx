@@ -1,0 +1,30 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="build.cmd" />
+    <File Path="build.sh" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.rsp" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE.md" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/System.CommandLine.ApiCompatibility.Tests/System.CommandLine.ApiCompatibility.Tests.csproj" />
+    <Project Path="src/System.CommandLine.StaticCompletions.Tests/System.CommandLine.StaticCompletions.Tests.csproj" />
+    <Project Path="src/System.CommandLine.StaticCompletions/System.CommandLine.StaticCompletions.csproj" />
+    <Project Path="src/System.CommandLine.Suggest.Tests/dotnet-suggest.Tests.csproj" />
+    <Project Path="src/System.CommandLine.Suggest/dotnet-suggest.csproj" />
+    <Project Path="src/System.CommandLine.Tests/System.CommandLine.Tests.csproj" />
+    <Project Path="src/System.CommandLine/System.CommandLine.csproj" />
+  </Folder>
+</Solution>

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.IO;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -131,7 +132,21 @@ namespace System.CommandLine
             this Argument<T> argument, 
             params string[] values)
         {
-            if (values is not null && values.Length > 0)
+            return AcceptOnlyFromAmong(argument, StringComparer.Ordinal, values);
+        }
+
+        /// <summary>
+        /// Configures the argument to accept only the specified values using the specified comparer, and to suggest them as command line completions.
+        /// </summary>
+        /// <param name="argument">The argument to configure.</param>
+        /// <param name="comparer">The comparer used to match argument values against the allowed values.</param>
+        /// <param name="values">The values that are allowed for the argument.</param>
+        public static Argument<T> AcceptOnlyFromAmong<T>(
+            this Argument<T> argument,
+            StringComparer comparer,
+            params string[] values)
+        {
+            if (values?.Length > 0)
             {
                 argument.Validators.Clear();
                 argument.Validators.Add(UnrecognizedArgumentError);
@@ -140,7 +155,7 @@ namespace System.CommandLine
             }
 
             return argument;
-            
+
             void UnrecognizedArgumentError(ArgumentResult argumentResult)
             {
                 for (var i = 0; i < argumentResult.Tokens.Count; i++)
@@ -149,7 +164,7 @@ namespace System.CommandLine
 
                     if (token.Symbol is null || token.Symbol == argument)
                     {
-                        if (Array.IndexOf(values, token.Value) < 0)
+                        if (!values.Contains(token.Value, comparer))
                         {
                             argumentResult.AddError(LocalizationResources.UnrecognizedArgument(token.Value, values));
                         }

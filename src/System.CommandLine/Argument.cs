@@ -45,8 +45,36 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// The name used in help output to describe the argument. 
+        /// Gets or sets a value indicating whether this argument captures all remaining tokens.
         /// </summary>
+        /// <remarks>
+        /// When set to <see langword="true"/>, once the parser starts filling this argument,
+        /// all subsequent tokens are consumed as argument values regardless of whether they
+        /// match known options or commands. This behaves as if <c>--</c> were implicitly
+        /// inserted before the argument's first value.
+        /// <para>
+        /// An argument with this property set to <see langword="true"/> must be the last
+        /// argument defined on its parent command.
+        /// </para>
+        /// </remarks>
+        public bool CaptureRemainingTokens { get; set; }
+
+        /// <summary>
+        /// Gets or sets the placeholder name shown in usage help for the argument's value.
+        /// The value will be wrapped in angle brackets (<c>&lt;</c> and <c>&gt;</c>).
+        /// </summary>
+        /// <remarks>
+        /// If <c>null</c>, the <see cref="Symbol.Name"/> of the argument will be used.
+        /// </remarks>
+        /// <example>
+        /// An argument with <see cref="Symbol.Name"/> of <c>argument</c> and a
+        /// <see cref="HelpName"/> of <c>Value</c> will be shown in usage help as:
+        /// <c>&lt;Value&gt;</c>. If <see cref="HelpName"/> is not set,
+        /// help output will show: <c>&lt;argument&gt;</c>.
+        /// </example>
+        /// <value>
+        /// The name to show as the placeholder for the argument's value.
+        /// </value>
         public string? HelpName { get; set; }
 
         internal TryConvertArgument? ConvertArguments
