@@ -391,6 +391,30 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().Contain(expected);
         }
 
+        [Theory]
+        [InlineData("display-name", 1, 1, "<display-name>")]
+        [InlineData("display-name", 0, 2, "[<display-name>...]")]
+        [InlineData(null, 1, 1, "<argument-name>")]
+        [InlineData("", 1, 1, "<argument-name>")]
+        [InlineData(" \t", 1, 1, "<argument-name>")]
+        public void Usage_section_uses_argument_HelpName_when_set(
+            string? helpName, int minArity, int maxArity, string expectedArgsUsage)
+        {
+            var command = new Command("the-command")
+            {
+                new Argument<string>("argument-name")
+                {
+                    HelpName = helpName,
+                    Arity = new ArgumentArity(minArity, maxArity)
+                }
+            };
+
+            _helpBuilder.Write(command, _console);
+
+            _console.ToString().Should().Contain(
+                $"Usage:{NewLine}{_indentation}the-command {expectedArgsUsage}{NewLine}");
+        }
+
         #endregion Usage
 
         #region Arguments
