@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.CommandLine.Completions;
+using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine
@@ -12,6 +13,7 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a value that can be passed on the command line to a <see cref="Command">command</see> or <see cref="Option">option</see>.
     /// </summary>
+    [DebuggerTypeProxy(typeof(ArgumentDebugView))]
     public abstract class Argument : Symbol
     {
         private ArgumentArity _arity;
@@ -169,6 +171,29 @@ namespace System.CommandLine
         internal bool IsBoolean() => ValueType == typeof(bool) || ValueType == typeof(bool?);
 
         internal static Argument None { get; } = new NoArgument();
+
+        private sealed class ArgumentDebugView
+        {
+            private readonly Argument _argument;
+
+            public ArgumentDebugView(Argument argument) => _argument = argument;
+
+            public string Name => _argument.Name;
+            public string? Description => _argument.Description;
+            public Type ValueType => _argument.ValueType;
+            public string? HelpName => _argument.HelpName;
+            public bool Hidden => _argument.Hidden;
+            public bool CaptureRemainingTokens => _argument.CaptureRemainingTokens;
+            public bool HasDefaultValue => _argument.HasDefaultValue;
+            public IEnumerable<Symbol> Parents => _argument.Parents;
+            public List<Action<ArgumentResult>>? Validators => _argument._validators;
+            public List<Func<CompletionContext, IEnumerable<CompletionItem>>>? CompletionSources => _argument._completionSources;
+
+            // Inspecting an argument must not cache an arity while it is still being configured.
+            public ArgumentArity Arity => _argument._arity.IsNonDefault
+                ? _argument._arity
+                : ArgumentArity.Default(_argument, _argument.FirstParent);
+        }
 
         private sealed class NoArgument : Argument
         {
