@@ -55,7 +55,9 @@ namespace System.CommandLine.Help
         /// <inheritdoc />
         public override int Invoke(ParseResult parseResult)
         {
-            var output = parseResult.InvocationConfiguration.Output;
+            var output = parseResult.Errors.Count > 0
+                ? parseResult.InvocationConfiguration.Error
+                : parseResult.InvocationConfiguration.Output;
 
             var helpContext = new HelpContext(Builder,
                                               parseResult.CommandResult.Command,

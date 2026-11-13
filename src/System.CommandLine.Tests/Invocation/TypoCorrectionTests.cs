@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = rootCommand.Parse("niof");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().Contain($"'niof' was not matched. Did you mean one of the following?{NewLine}info");
         }
@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests.Invocation
                 parseError.ShowTypoCorrections = false;
             }
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().NotContain("Did you mean");
         }
@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = rootCommand.Parse("sertor");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().Contain($"'sertor' was not matched. Did you mean one of the following?{NewLine}restore");
         }
@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = rootCommand.Parse("een");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}seen{NewLine}been");
         }
@@ -101,7 +101,7 @@ namespace System.CommandLine.Tests.Invocation
             var output = new StringWriter();
             var result = rootCommand.Parse("zzzzzzz");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().NotContain("was not matched");
         }
@@ -123,7 +123,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = rootCommand.Parse("een");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
@@ -147,7 +147,7 @@ namespace System.CommandLine.Tests.Invocation
             parseErrorAction.ShowHelp = false;
             parseErrorAction.ShowTypoCorrections = true;
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().NotContain("the-argument");
         }
@@ -168,7 +168,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = rootCommand.Parse("een");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
@@ -184,7 +184,7 @@ namespace System.CommandLine.Tests.Invocation
             var output = new StringWriter();
             var result = rootCommand.Parse("-all");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().Contain($"'-all' was not matched. Did you mean one of the following?{NewLine}-call");
         }
@@ -202,7 +202,7 @@ namespace System.CommandLine.Tests.Invocation
             var output = new StringWriter();
             var result = rootCommand.Parse("sub --verbos");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().Contain($"'--verbos' was not matched. Did you mean one of the following?{NewLine}--verbose");
         }
@@ -220,7 +220,7 @@ namespace System.CommandLine.Tests.Invocation
             var output = new StringWriter();
             var result = rootCommand.Parse("sub --verbos");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().NotContain("--verbose");
         }
@@ -238,7 +238,7 @@ namespace System.CommandLine.Tests.Invocation
             var output = new StringWriter();
             var result = rootCommand.Parse("sub --verbos");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().NotContain("--verbose");
         }
@@ -257,7 +257,7 @@ namespace System.CommandLine.Tests.Invocation
             var output = new StringWriter();
             var result = rootCommand.Parse("child grandchild --outpu");
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().Contain($"'--outpu' was not matched. Did you mean one of the following?{NewLine}--output");
         }
@@ -284,7 +284,7 @@ namespace System.CommandLine.Tests.Invocation
                 parseError.ShowHelp = false;
             }
 
-            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+            await result.InvokeAsync(new() { Error = output }, CancellationToken.None);
 
             output.ToString().Should().Contain("--format");
             output.ToString().Should().NotContain("--verbose");
