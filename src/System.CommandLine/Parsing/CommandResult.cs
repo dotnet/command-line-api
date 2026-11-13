@@ -43,6 +43,35 @@ namespace System.CommandLine.Parsing
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
             => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;
 
+        internal void AddDefaultResults()
+        {
+            if (Command.HasOptions)
+            {
+                for (var i = 0; i < Command.Options.Count; i++)
+                {
+                    var option = Command.Options[i];
+                    if (option.Argument.HasDefaultValue && !SymbolResultTree.ContainsKey(option))
+                    {
+                        var optionResult = new OptionResult(option, SymbolResultTree, null, this);
+                        SymbolResultTree.Add(option, optionResult);
+                        SymbolResultTree.Add(option.Argument, new ArgumentResult(option.Argument, SymbolResultTree, optionResult, isImplicit: true));
+                    }
+                }
+            }
+
+            if (Command.HasArguments)
+            {
+                for (var i = 0; i < Command.Arguments.Count; i++)
+                {
+                    var argument = Command.Arguments[i];
+                    if (argument.HasDefaultValue && !SymbolResultTree.ContainsKey(argument))
+                    {
+                        SymbolResultTree.Add(argument, new ArgumentResult(argument, SymbolResultTree, this, isImplicit: true));
+                    }
+                }
+            }
+        }
+
         internal void Validate(bool isInnermostCommand)
         {
             if (isInnermostCommand)

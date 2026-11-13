@@ -403,6 +403,15 @@ namespace System.CommandLine.Parsing
 
         private void ValidateAndAddDefaultResults()
         {
+            if (_innermostCommandResult.Command.HasValidators)
+            {
+                // Make defaults available to command validators without evaluating their factories yet.
+                for (CommandResult? result = _innermostCommandResult; result is not null; result = result.Parent as CommandResult)
+                {
+                    result.AddDefaultResults();
+                }
+            }
+
             // Only the innermost command goes through complete validation,
             // for other commands only a subset of options is checked.
             _innermostCommandResult.Validate(isInnermostCommand: true);
