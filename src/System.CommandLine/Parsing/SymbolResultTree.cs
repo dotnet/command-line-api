@@ -8,8 +8,11 @@ namespace System.CommandLine.Parsing
     internal sealed class SymbolResultTree : Dictionary<Symbol, SymbolResult>
     {
         private readonly Command? _rootCommand;
+        internal CommandResult? InnermostCommandResult;
         internal List<ParseError>? Errors;
         internal List<Token>? UnmatchedTokens;
+        private Dictionary<string, SymbolNode>? _parsedSymbolsByName;
+        private CommandResult? _parsedSymbolsCommandResult;
         private Dictionary<string, SymbolNode>? _symbolsByName;
 
         internal SymbolResultTree(
@@ -78,17 +81,37 @@ namespace System.CommandLine.Parsing
 
         public SymbolResult? GetResult(string name)
         {
+            if (_symbolsByName is null && InnermostCommandResult is not null)
+            {
+                if (_parsedSymbolsByName is null || !ReferenceEquals(_parsedSymbolsCommandResult, InnermostCommandResult))
+                {
+                    _parsedSymbolsByName = new(StringComparer.Ordinal);
+                    _parsedSymbolsCommandResult = InnermostCommandResult;
+                    PopulateParsedCommandChain(InnermostCommandResult, _parsedSymbolsByName);
+                }
+
+                if (_parsedSymbolsByName.TryGetValue(name, out SymbolNode? parsedNode))
+                {
+                    return FindMatchingResult(parsedNode);
+                }
+            }
+
             if (_symbolsByName is null && _rootCommand is not null)
             {
-                _symbolsByName = new();  
-                PopulateSymbolsByName(_rootCommand);
+                _symbolsByName = new(StringComparer.Ordinal);
+                PopulateSymbolsByName(_rootCommand, _symbolsByName);
             }
-          
-            if (!_symbolsByName!.TryGetValue(name, out SymbolNode? node))
+
+            if (_symbolsByName is null || !_symbolsByName.TryGetValue(name, out SymbolNode? node))
             {
                 throw new ArgumentException($"No symbol result found with name \"{name}\".");
             }
 
+            return FindMatchingResult(node);
+        }
+
+        private SymbolResult? FindMatchingResult(SymbolNode? node)
+        {
             while (node is not null)
             {
                 if (TryGetValue(node.Symbol, out var result))
@@ -102,13 +125,70 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-        private void PopulateSymbolsByName(Command command)
+        private static void PopulateParsedCommandChain(CommandResult innermost, Dictionary<string, SymbolNode> target)
+        {
+            List<Command> chain = new(4);
+            for (SymbolResult? current = innermost; current is CommandResult cmdResult; current = cmdResult.Parent)
+            {
+                chain.Add(cmdResult.Command);
+            }
+
+            for (int c = chain.Count - 1; c >= 0; c--)
+            {
+                Command command = chain[c];
+                HashSet<string>? childNames = null;
+
+                if (command.HasArguments)
+                {
+                    for (var i = 0; i < command.Arguments.Count; i++)
+                    {
+                        Argument arg = command.Arguments[i];
+                        TrackChildName(ref childNames, arg.Name, command);
+                        AddSymbolNode(target, arg, command);
+                    }
+                }
+
+                if (command.HasOptions)
+                {
+                    for (var i = 0; i < command.Options.Count; i++)
+                    {
+                        Option opt = command.Options[i];
+                        TrackChildName(ref childNames, opt.Name, command);
+                        AddSymbolNode(target, opt, command);
+                    }
+                }
+
+                if (command._subcommands is { Count: > 0 } subs)
+                {
+                    for (var i = 0; i < subs.Count; i++)
+                    {
+                        string subName = subs.GetEntryName(i);
+                        TrackChildName(ref childNames, subName, command);
+                        if (subs.TryGetMaterialized(i) is { } materializedSub)
+                        {
+                            AddSymbolNode(target, materializedSub, command);
+                        }
+                    }
+                }
+            }
+
+            static void TrackChildName(ref HashSet<string>? names, string childName, Command parent)
+            {
+                names ??= new HashSet<string>(StringComparer.Ordinal);
+                if (!names.Add(childName))
+                {
+                    throw new InvalidOperationException($"Command {parent.Name} has more than one child named \"{childName}\".");
+                }
+            }
+        }
+
+        private static void PopulateSymbolsByName(Command command, Dictionary<string, SymbolNode> target)
         {
             if (command.HasArguments)
             {
                 for (var i = 0; i < command.Arguments.Count; i++)
                 {
-                    AddToSymbolsByName(command.Arguments[i], command);
+                    AddSymbolNode(target, command.Arguments[i], command);
                 }
             }
 
@@ -116,7 +196,7 @@ namespace System.CommandLine.Parsing
             {
                 for (var i = 0; i < command.Options.Count; i++)
                 {
-                    AddToSymbolsByName(command.Options[i], command);
+                    AddSymbolNode(target, command.Options[i], command);
                 }
             }
 
@@ -125,36 +205,36 @@ namespace System.CommandLine.Parsing
                 for (var i = 0; i < command.Subcommands.Count; i++)
                 {
                     var childCommand = command.Subcommands[i];
-                    AddToSymbolsByName(childCommand, command);
-                    PopulateSymbolsByName(childCommand);
+                    AddSymbolNode(target, childCommand, command);
+                    PopulateSymbolsByName(childCommand, target);
                 }
             }
+        }
 
-            void AddToSymbolsByName(Symbol symbol, Command parent)
+        private static void AddSymbolNode(Dictionary<string, SymbolNode> target, Symbol symbol, Command parent)
+        {
+            if (target.TryGetValue(symbol.Name, out var node))
             {
-                if (_symbolsByName!.TryGetValue(symbol.Name, out var node))
+                var current = node;
+                do
                 {
-                    var current = node;
-                    do
+                    // The same symbol can be added to multiple commands and have multiple parents.
+                    // We can't allow for name duplicates within the same command.
+                    if (ReferenceEquals(current.Parent, parent))
                     {
-                        // The same symbol can be added to multiple commands and have multiple parents.
-                        // We can't allow for name duplicates within the same command.
-                        if (ReferenceEquals(current.Parent, parent))
-                        {
-                            throw new InvalidOperationException($"Command {parent.Name} has more than one child named \"{symbol.Name}\".");
-                        }
-                        current = current.Next;
-                    } while (current is not null);
+                        throw new InvalidOperationException($"Command {parent.Name} has more than one child named \"{symbol.Name}\".");
+                    }
+                    current = current.Next;
+                } while (current is not null);
 
-                    _symbolsByName[symbol.Name] = new(symbol, parent)
-                    {
-                        Next = node
-                    };
-                }
-                else
+                target[symbol.Name] = new(symbol, parent)
                 {
-                    _symbolsByName[symbol.Name] = new(symbol, parent);
-                }
+                    Next = node
+                };
+            }
+            else
+            {
+                target[symbol.Name] = new(symbol, parent);
             }
         }
     }

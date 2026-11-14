@@ -29,6 +29,14 @@ namespace System.CommandLine.Parsing
             Position = position;
         }
 
+        internal Token(string value, DeferredSubcommand deferredSubcommand)
+        {
+            Value = value;
+            Type = TokenType.Command;
+            DeferredSubcommand = deferredSubcommand;
+            Position = ImplicitPosition;
+        }
+
         internal int Position { get; }
 
         /// <summary>
@@ -48,11 +56,18 @@ namespace System.CommandLine.Parsing
         /// </summary>
         internal Symbol? Symbol { get; set; }
 
+        internal DeferredSubcommand? DeferredSubcommand { get; }
+
         /// <inheritdoc />
         public override bool Equals(object? obj) => Equals(obj as Token);
 
         /// <inheritdoc />
-        public bool Equals(Token? other) => other is not null && Value == other.Value && Type == other.Type && ReferenceEquals(Symbol, other.Symbol);
+        public bool Equals(Token? other) =>
+            other is not null &&
+            Value == other.Value &&
+            Type == other.Type &&
+            ReferenceEquals(Symbol, other.Symbol) &&
+            ReferenceEquals(DeferredSubcommand, other.DeferredSubcommand);
 
         /// <inheritdoc />
         public override int GetHashCode() => Value.GetHashCode() ^ (int)Type;

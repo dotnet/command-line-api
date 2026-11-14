@@ -49,6 +49,30 @@ namespace System.CommandLine
             }
         }
 
+        internal void RemoveParent(Symbol symbol)
+        {
+            SymbolNode? previous = null;
+            SymbolNode? current = FirstParent;
+            while (current is not null)
+            {
+                if (ReferenceEquals(current.Symbol, symbol))
+                {
+                    if (previous is null)
+                    {
+                        FirstParent = current.Next;
+                    }
+                    else
+                    {
+                        previous.Next = current.Next;
+                    }
+                    return;
+                }
+
+                previous = current;
+                current = current.Next;
+            }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the symbol is hidden.
         /// </summary>
