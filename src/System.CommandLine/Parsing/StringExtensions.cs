@@ -141,7 +141,9 @@ namespace System.CommandLine.Parsing
                                 break;
 
                             case TokenType.Command:
-                                Command cmd = (Command)token.Symbol!;
+                                Command cmd = token.DeferredSubcommand is { } deferred
+                                    ? deferred.GetOrCreate()
+                                    : (Command)token.Symbol!;
                                 if (cmd != currentCommand)
                                 {
                                     if (cmd != rootCommand)
@@ -409,12 +411,11 @@ namespace System.CommandLine.Parsing
 
             AddCommandTokens(tokens, command);
 
-            if (command.HasSubcommands)
+            if (command._subcommands is { Count: > 0 } subCommands)
             {
-                var subCommands = command.Subcommands;
                 for (int i = 0; i < subCommands.Count; i++)
                 {
-                    AddCommandTokens(tokens, subCommands[i]);
+                    subCommands.AddEntryTokens(tokens, i);
                 }
             }
 
