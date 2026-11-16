@@ -162,6 +162,24 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [Fact]
+        public async Task List_command_keeps_dotted_global_tool_names()
+        {
+            var globalTools = new GlobalToolsSuggestionRegistration(
+                Path.Combine(Path.GetTempPath(), ".dotnet"),
+                new[] { "Example.Tools.StatusMonitor.Console" });
+
+            var dispatcher = new SuggestionDispatcher(globalTools);
+            dispatcher.Configuration.Output = new StringWriter();
+
+            await dispatcher.InvokeAsync(new[] { "list" });
+
+            dispatcher.Configuration.Output
+                       .ToString()
+                       .Should()
+                       .Be($"Example.Tools.StatusMonitor.Console{Environment.NewLine}");
+        }
+
+        [Fact]
         public async Task Register_command_adds_new_suggestion_entry()
         {
             var provider = new TestSuggestionRegistration();

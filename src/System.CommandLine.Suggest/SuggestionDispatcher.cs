@@ -185,7 +185,7 @@ namespace System.CommandLine.Suggest
             {
                 foreach (var r in registrations)
                 {
-                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(r.ExecutablePath);
+                    var fileNameWithoutExtension = FileEnumerator.GetCommandName(r.ExecutablePath);
 
                     yield return fileNameWithoutExtension;
 
