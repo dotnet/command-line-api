@@ -46,5 +46,24 @@ namespace System.CommandLine.Suggest.Tests
                 Directory.Delete(path, true);
             }
         }
+
+        [Fact]
+        public void EnumerateFilesWithoutExtension_keeps_dotted_names_and_removes_only_exe_extension()
+        {
+            var path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            try
+            {
+                Directory.CreateDirectory(path);
+                File.WriteAllText(Path.Combine(path, "Example.Tools.StatusMonitor.Console"), "");
+                File.WriteAllText(Path.Combine(path, "SampleUi.Automation.TestClient.exe"), "");
+                FileEnumerator.EnumerateFilesWithoutExtension(new DirectoryInfo(path))
+                    .Should()
+                    .BeEquivalentTo("Example.Tools.StatusMonitor.Console", "SampleUi.Automation.TestClient");
+            }
+            finally
+            {
+                Directory.Delete(path, true);
+            }
+        }
     }
 }
