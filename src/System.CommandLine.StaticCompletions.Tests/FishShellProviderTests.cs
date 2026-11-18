@@ -67,7 +67,8 @@ public class FishShellProviderTests(ITestOutputHelper log)
     {
         var multiOption = new Option<string[]>("--sources")
         {
-            Arity = new ArgumentArity(1, 3)
+            Arity = new ArgumentArity(1, 3),
+            AllowMultipleArgumentsPerToken = true
         };
         multiOption.AcceptOnlyFromAmong("src1", "src2", "src3", "src4");
         await provider.Verify(new("mycommand") {
@@ -81,7 +82,8 @@ public class FishShellProviderTests(ITestOutputHelper log)
     {
         var unboundedOption = new Option<string[]>("--items")
         {
-            Arity = ArgumentArity.ZeroOrMore
+            Arity = ArgumentArity.ZeroOrMore,
+            AllowMultipleArgumentsPerToken = true
         };
         unboundedOption.AcceptOnlyFromAmong("a", "b", "c");
         await provider.Verify(new("mycommand") {
@@ -99,13 +101,15 @@ public class FishShellProviderTests(ITestOutputHelper log)
 
         var multiOption = new Option<string[]>("--framework", "-f")
         {
-            Arity = new ArgumentArity(1, 3)
+            Arity = new ArgumentArity(1, 3),
+            AllowMultipleArgumentsPerToken = true
         };
         multiOption.AcceptOnlyFromAmong("net8.0", "net9.0", "net10.0");
 
         var unboundedOption = new Option<string[]>("--sources")
         {
-            Arity = ArgumentArity.OneOrMore
+            Arity = ArgumentArity.OneOrMore,
+            AllowMultipleArgumentsPerToken = true
         };
 
         await provider.Verify(new("mycommand") {
@@ -146,5 +150,11 @@ public class FishShellProviderTests(ITestOutputHelper log)
             verbosityOption,
             new Command("quiet")
         }, log);
+    }
+
+    [Fact]
+    public async Task PositionalSlots()
+    {
+        await provider.Verify(FishShellRuntimeTests.CreateCommand(), log);
     }
 }
