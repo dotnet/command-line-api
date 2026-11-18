@@ -44,6 +44,15 @@ Your users can now generate a completion script for their shell:
 
 When the shell argument is omitted, the shell is detected from the environment (the `SHELL` variable on Unix, PowerShell on Windows).
 
+## Fish Argument Completions
+
+Fish scripts track positional arguments separately for each command. Only the argument at the cursor supplies static or dynamic value completions.
+Option values do not advance the positional slot. The scripts honor argument arity, `AllowMultipleArgumentsPerToken`, command aliases, recursive options, and inline option values.
+The scripts also recognize short-option bundles and attached values.
+After `--`, the scripts complete declared positional arguments without offering options or subcommands. Arguments with `CaptureRemainingTokens` also suppress option and subcommand candidates during capture.
+
+The Fish runtime tests require `fish` on `PATH`. On Windows, set `FISH_TEST_WSL_DISTRO` to a WSL distribution with Fish installed.
+
 ## Dynamic Completions
 
 Static scripts are perfect for the fixed structure of your CLI, but some completions can only be computed at runtime. Mark an option or argument as dynamic and the generated script will call back into your application (via System.CommandLine's built-in `[suggest]` directive) to resolve those values on demand:
