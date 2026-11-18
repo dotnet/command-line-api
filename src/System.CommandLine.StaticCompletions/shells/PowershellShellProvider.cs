@@ -163,7 +163,7 @@ Register-ArgumentCompleter -Native -CommandName {{{Quote(binaryName)}}} -ScriptB
 
         // These comments are emitted with the script so generated scripts can also be maintained.
         // Keep tokenization separate from argument assignment, as the parser does for capture.
-        foreach (var line in
+        WriteIndentedScript(writer,
 """
 # Register-ArgumentCompleter passes the current word, the parsed command AST, and an absolute
 # cursor offset. CommandElements includes the executable, so tracking starts after that element.
@@ -336,16 +336,30 @@ if (-not $endOfOptions -and -not $capturing -and $separator -ge 0) {
         $valueToComplete = $wordToComplete.Substring($separator + 1)
     }
 }
-""".ReplaceLineEndings("\n").Split('\n'))
+""");
+    }
+
+    private static void WriteIndentedScript(IndentedTextWriter writer, string script)
+    {
+        int start = 0;
+        while (start < script.Length)
         {
-            if (line.Length == 0)
+            int end = script.IndexOf('\n', start);
+            if (end < 0)
+            {
+                writer.WriteLine(script[start..]);
+                return;
+            }
+
+            if (script.AsSpan(start, end - start).Trim().IsEmpty)
             {
                 writer.InnerWriter.WriteLine();
             }
             else
             {
-                writer.WriteLine(line);
+                writer.WriteLine(script[start..end]);
             }
+            start = end + 1;
         }
     }
 
