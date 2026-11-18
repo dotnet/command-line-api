@@ -66,6 +66,17 @@ rootCommand.Options.Add(nameOption);
 
 > **Note:** Dynamic completions rely on the `[suggest]` directive being present on your root command (it is enabled by default). If you have removed it while dynamic symbols are present, script generation will emit a warning because those completions would silently do nothing.
 
+## PowerShell completion context
+
+PowerShell scripts recognize subcommands after options and option values, including command aliases and recursive options.
+The tracker uses case-sensitive symbol matching, option arity, inline `=` and `:` values, and default POSIX option bundles.
+Required option values can contain subcommand names.
+After `--`, subsequent tokens are positional values, not options or subcommands.
+
+The tracker reads only tokens before the cursor and does not evaluate PowerShell expressions or expand response files.
+It records option values and positional argument counts without adding filesystem completion or path metadata.
+Static candidate lists and dynamic positional argument lookup remain available for the resolved command.
+
 ## Framework Support
 
 * **.NET 8.0+** - Trimming and AOT compatible.
