@@ -83,10 +83,12 @@ public class FishShellProvider : IShellProvider
         Dictionary<Command, int> stateIdByCommand,
         Option[] options)
     {
+        // Keep the cursor token in the walk so the tracker can report its completion context without counting it as consumed.
         writer.WriteLine("set -l tokens (commandline -opc)");
         writer.WriteLine("set -l current_token (commandline -ct)");
         writer.WriteLine("set -a tokens \"$current_token\"");
         writer.WriteLine("set -l state 0");
+        // Argument ownership follows positional values, not token indexes; option names and their values do not fill argument slots.
         writer.WriteLine("set -l position 0");
         writer.WriteLine("set -l end_options 0");
         writer.WriteLine("set -l capture_started 0");
@@ -132,6 +134,7 @@ public class FishShellProvider : IShellProvider
             var namedOptions = ParsingOptions(cmd)
                 .SelectMany(option => new[] { option.Name }.Concat(option.Aliases).Select(name => (name, option)))
                 .ToArray();
+            // Without AllowMultipleArgumentsPerToken, one shell token cannot supply multiple option values.
             var maximumValues = namedOptions.Select(o => o.option.AllowMultipleArgumentsPerToken
                 ? o.option.Arity.MaximumNumberOfValues
                 : Math.Min(1, o.option.Arity.MaximumNumberOfValues));
@@ -160,6 +163,7 @@ public class FishShellProvider : IShellProvider
         }
         writer.Indent--;
         writer.WriteLine("end");
+        // Split short-option bundles into ordinary tokens so the same arity and value rules apply to bundled options.
         foreach (var line in """
             if test "$kind" != command
                 set -l index (contains -i -- "$word" $option_names)
@@ -223,6 +227,7 @@ public class FishShellProvider : IShellProvider
         }
         writer.Indent--;
         writer.WriteLine("end");
+        // CaptureRemainingTokens can turn option-looking words into values, so detect its active slot before consuming the token.
         writer.WriteLine("set capture 0");
         writer.WriteLine("switch $state");
         writer.Indent++;
@@ -273,6 +278,7 @@ public class FishShellProvider : IShellProvider
         writer.WriteLine("if test $pending -gt 0");
         writer.Indent++;
         writer.WriteLine("set -l consume 0");
+        // Required option values can look like commands or options; optional values must not swallow those symbols.
         writer.WriteLine("if test \"$kind\" = argument; or test $first_value -eq 1 -a $greedy -eq 1 -a $inline -eq 0");
         writer.Indent++;
         writer.WriteLine("set consume 1");
@@ -362,6 +368,7 @@ public class FishShellProvider : IShellProvider
         writer.Indent++;
         writer.WriteLine("case command");
         writer.Indent++;
+        // Positional arguments belong to the selected command, so a subcommand starts a fresh slot sequence.
         writer.WriteLine("set state $next_state");
         writer.WriteLine("set position 0");
         writer.WriteLine("set capture_started 0");
@@ -459,6 +466,7 @@ public class FishShellProvider : IShellProvider
             writer.Indent--;
             writer.WriteLine("end");
 
+            // Arity ranges map the consumed positional count to exactly one argument, including optional and repeated arguments.
             long start = 0;
             foreach (var arg in cmd.Arguments)
             {
