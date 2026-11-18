@@ -15,12 +15,17 @@ Register-ArgumentCompleter -Native -CommandName 'mycommand' -ScriptBlock {
     $states[0].Commands.Add('mycommand', 0)
     $option = @{ Name = '--name'; Maximum = 1; Greedy = $true; Boolean = $false }
     $states[0].Options.Add('--name', $option)
+    # Register-ArgumentCompleter passes the current word, the parsed command AST, and an absolute
+    # cursor offset. CommandElements includes the executable, so tracking starts after that element.
+    # First classify completed elements into parser-like tokens. The second pass assigns their values.
     $tokens = [System.Collections.Generic.List[object]]::new()
     $tokenState = 0
     $previousOption = $null
     $endOfOptions = $false
     $inDirectives = $true
     foreach ($element in $commandAst.CommandElements | Select-Object -Skip 1) {
+        # Do not consume the element being completed or any element after the cursor.
+        # If the cursor is inside an element, keep only the prefix for candidate filtering.
         if ($element.Extent.EndOffset -ge $cursorPosition) {
             if ($element.Extent.StartOffset -lt $cursorPosition) {
                 $length = [Math]::Min($wordToComplete.Length, $cursorPosition - $element.Extent.StartOffset)
@@ -28,21 +33,27 @@ Register-ArgumentCompleter -Native -CommandName 'mycommand' -ScriptBlock {
             }
             break
         }
+        # Use the unquoted value of a PowerShell string literal. For other AST nodes, use their text
+        # without evaluating expressions, variables, or substitutions.
         $word = if ($element -is [StringConstantExpressionAst]) { $element.Value } else { $element.Extent.Text }
         $context = $states[$tokenState]
         if ($endOfOptions) {
             $tokens.Add(@{ Kind = 'argument'; Value = $word })
             continue
         }
+        # -ceq is case-sensitive. The end marker makes all later elements positional tokens.
         if ($word -ceq '--') {
             $endOfOptions = $true
             $previousOption = $null
             $tokens.Add(@{ Kind = 'end' })
             continue
         }
+        # Directives are recognized only before the first non-directive element.
         if ($inDirectives -and $word -match '^\[[^:\]][^\]]*\]$') { continue }
         $inDirectives = $false
 
+        # A greedy option classifies the next known name as an argument, even if it names a subcommand.
+        # Otherwise, command aliases select a new tokenization state and option aliases select metadata.
         $known = $context.Commands.ContainsKey($word) -or $context.Options.ContainsKey($word)
         if ($known -and $previousOption -and $previousOption.Greedy) {
             $tokens.Add(@{ Kind = 'argument'; Value = $word })
@@ -60,6 +71,7 @@ Register-ArgumentCompleter -Native -CommandName 'mycommand' -ScriptBlock {
             $previousOption = $context.Options[$word]
             $tokens.Add(@{ Kind = 'option'; Option = $previousOption })
         } else {
+            # Split an inline value, such as --name=value or -n:value, into option and argument tokens.
             $separator = $word.IndexOfAny([char[]]'=:')
             $name = if ($separator -ge 0) { $word.Substring(0, $separator) } else { $word }
             if ($separator -ge 0 -and $context.Options.ContainsKey($name)) {
@@ -71,6 +83,8 @@ Register-ArgumentCompleter -Native -CommandName 'mycommand' -ScriptBlock {
                 }
             } elseif ($word.Length -gt 2 -and $word[0] -eq '-' -and $word[1] -ne '-' -and
                       $word[2] -notin ':', '=' -and -not ($previousOption -and $previousOption.Greedy)) {
+                # Expand a POSIX-style bundle such as -ab. A greedy option or an unknown character
+                # after a recognized option makes the remainder an argument value.
                 $bundle = [System.Collections.Generic.List[object]]::new()
                 for ($j = 1; $j -lt $word.Length; $j++) {
                     $name = '-' + $word[$j]
@@ -104,6 +118,9 @@ Register-ArgumentCompleter -Native -CommandName 'mycommand' -ScriptBlock {
         }
     }
 
+    # Replay the tokens to find the parser context at the cursor. $tokenState above is only for
+    # token recognition; $state can differ when a positional argument captures subsequent tokens.
+    # Option counts are per occurrence. Argument counts and indices belong to the current command.
     $state = 0
     $pendingOption = $null
     $optionValueCount = 0
@@ -113,12 +130,17 @@ Register-ArgumentCompleter -Native -CommandName 'mycommand' -ScriptBlock {
     $capturing = $false
     foreach ($token in $tokens) {
         $arguments = $states[$state].Arguments
+        # Skip positional arguments whose maximum arity is already filled.
         while ($argumentIndex -lt $arguments.Count -and $argumentValueCount -ge $arguments[$argumentIndex].Maximum) {
             $argumentIndex++
             $argumentValueCount = 0
         }
+        # CaptureRemainingTokens can consume command and option tokens after capture starts.
+        # An end marker before capture starts keeps its normal meaning.
         $capture = $argumentIndex -lt $arguments.Count -and $arguments[$argumentIndex].Capture -and
             ($capturing -or ($token.Kind -ne 'end' -and ($token.Kind -eq 'argument' -or $argumentIndex -gt 0 -or $argumentValueCount -gt 0)))
+        # A pending option consumes contiguous argument tokens up to its per-occurrence maximum.
+        # Boolean options consume only explicit true or false values, ignoring case and whitespace.
         if ($pendingOption -and $token.Kind -eq 'argument') {
             if (-not $pendingOption.Boolean -or $token.Value.Trim() -imatch '^(true|false)$') {
                 $optionValueCount++
@@ -144,11 +166,14 @@ Register-ArgumentCompleter -Native -CommandName 'mycommand' -ScriptBlock {
             $argumentValueCount++
         }
     }
+    # Advance once more so the index identifies the positional argument at the cursor.
     $arguments = $states[$state].Arguments
     while ($argumentIndex -lt $arguments.Count -and $argumentValueCount -ge $arguments[$argumentIndex].Maximum) {
         $argumentIndex++
         $argumentValueCount = 0
     }
+    # Keep the option and positional context for later completion features. For an inline value,
+    # separate the option prefix from the value prefix without treating the current word as consumed.
     $completionOption = $pendingOption
     $valuePrefix = ''
     $valueToComplete = $wordToComplete
