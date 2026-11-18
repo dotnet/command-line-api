@@ -87,4 +87,24 @@ public class ZshShellProviderTests(ITestOutputHelper log)
         await _provider.Verify(command, log);
     }
 
+    [Fact]
+    public async Task WindowsStyleAliasesAreFilteredOut()
+    {
+        // zsh's _arguments rejects '/'-prefixed specs, e.g. "_arguments:comparguments:327: invalid argument: /v=[...]"
+        var flagOption = new Option<bool>("--verbose", "/v", "-v")
+        {
+            Arity = ArgumentArity.Zero
+        };
+        var valueOption = new Option<string>("--verbosity", "/verbosity", "-verbosity", "-v")
+        {
+            Description = "Set verbosity level"
+        };
+        valueOption.AcceptOnlyFromAmong("quiet", "normal", "detailed");
+        Command command = new Command("my-app")
+        {
+            flagOption,
+            valueOption
+        };
+        await _provider.Verify(command, log);
+    }
 }

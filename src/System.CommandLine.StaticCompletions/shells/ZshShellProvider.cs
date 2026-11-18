@@ -19,6 +19,10 @@ public class ZshShellProvider : IShellProvider
 
     private const string StateName = "suggest";
 
+    // zsh's _arguments rejects Windows-style ('/'-prefixed) option specs, so only emit '-'-prefixed names.
+    private static IEnumerable<string> SanitizeOptionNames(IEnumerable<string> names) =>
+        names.Where(n => n.StartsWith('-'));
+
     public string GenerateCompletions(Command command)
     {
         var binaryName = command.Name;
@@ -86,7 +90,7 @@ fi
             var helpText = SanitizeHelp(option.Description);
             if (option.IsFlag())
             {
-                foreach (var name in option.Names())
+                foreach (var name in SanitizeOptionNames(option.Names()))
                 {
                     writer.WriteLine($"'{multiplicity}{name}[{helpText}]' \\");
                 }
@@ -99,7 +103,7 @@ fi
                 }
                 var argumentName = option.HelpName ?? " ";
                 var argumentValues = ZshValueExpression(option);
-                foreach (var name in option.Names())
+                foreach (var name in SanitizeOptionNames(option.Names()))
                 {
                     writer.Write($"'{multiplicity}{name}=[{helpText}]:{argumentName}");
                     WriteValueExpression(writer, argumentValues);

@@ -115,4 +115,36 @@ public class FishShellProviderTests(ITestOutputHelper log)
             new Command("build")
         }, log);
     }
+
+    [Fact]
+    public async Task WindowsStyleAliasesAreFilteredOut()
+    {
+        var flagOption = new Option<bool>("--verbose", "/v", "-v")
+        {
+            Arity = ArgumentArity.Zero
+        };
+        var valueOption = new Option<string>("--verbosity", "/verbosity", "-verbosity", "-v")
+        {
+            Description = "Set verbosity level"
+        };
+        valueOption.AcceptOnlyFromAmong("quiet", "normal", "detailed");
+        await provider.Verify(new("mycommand") {
+            flagOption,
+            valueOption,
+            new Command("subcommand")
+        }, log);
+    }
+
+    [Fact]
+    public async Task WindowsStyleValueAliasesAreRecognizedByStateWalker()
+    {
+        var verbosityOption = new Option<string>("--verbosity", "/verbosity")
+        {
+            Description = "Set verbosity level"
+        };
+        await provider.Verify(new("mycommand") {
+            verbosityOption,
+            new Command("quiet")
+        }, log);
+    }
 }
