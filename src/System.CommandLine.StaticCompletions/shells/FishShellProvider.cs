@@ -164,67 +164,65 @@ public class FishShellProvider : IShellProvider
         writer.Indent--;
         writer.WriteLine("end");
         // Split short-option bundles into ordinary tokens so the same arity and value rules apply to bundled options.
-        foreach (var line in """
+        string indent = new(' ', writer.Indent * 4);
+        writer.WriteLine($$"""
             if test "$kind" != command
-                set -l index (contains -i -- "$word" $option_names)
-                if test (count $index) -eq 0
-                    set index (contains -i -- "$option_name" $option_names)
-                    if test (count $index) -gt 0
-                        set inline 1
-                    end
-                end
-                if test (count $index) -gt 0
-                    set kind option
-                    set option_id $option_ids[$index]
-                    set maximum $option_maxima[$index]
-                    set option_greedy $option_greedies[$index]
-                    set option_boolean $option_booleans[$index]
-                else if test $end_options -eq 0; and string match -qr '^-[^-:=].+' -- "$word"
-                    if not test $pending -gt 0 -a $first_value -eq 1 -a $greedy -eq 1
-                        set -l bundle
-                        set -l j 2
-                        while test $j -le (string length -- "$word")
-                            set -l short -(string sub -s $j -l 1 -- "$word")
-                            set index (contains -i -- "$short" $option_names)
-                            if test (count $index) -eq 0
-                                if test (count $bundle) -gt 0
-                                    set -l rest (string sub -s $j -- "$word" | string replace -r '^[:=]' '')
-                                    set bundle[-1] "$bundle[-1]=$rest"
-                                    if test $current -eq 1
-                                        set value_prefix (string sub -l (math $j - 1) -- "$word")
-                                    end
-                                end
-                                break
-                            end
-                            set -a bundle "$short"
-                            set -l rest (string sub -s (math $j + 1) -- "$word")
-                            if test -n "$rest"; and begin; test $option_greedies[$index] -eq 1; or string match -qr '^[:=]' -- "$rest"; end
-                                set -l prefix_length $j
-                                if string match -qr '^[:=]' -- "$rest"
-                                    set prefix_length (math $j + 1)
-                                end
-                                set rest (string replace -r '^[:=]' '' -- "$rest")
-                                set bundle[-1] "$short=$rest"
-                                if test $current -eq 1
-                                    set value_prefix (string sub -l $prefix_length -- "$word")
-                                end
-                                break
-                            end
-                            set j (math $j + 1)
-                        end
-                        if test (count $bundle) -gt 0
-                            set -l before (math $i - 1)
-                            set -l after (math $i + 1)
-                            set tokens $tokens[1..$before] $bundle $tokens[$after..-1]
-                            continue
-                        end
-                    end
-                end
-            end
-            """.Split('\n'))
-        {
-            writer.WriteLine(line);
-        }
+            {{indent}}    set -l index (contains -i -- "$word" $option_names)
+            {{indent}}    if test (count $index) -eq 0
+            {{indent}}        set index (contains -i -- "$option_name" $option_names)
+            {{indent}}        if test (count $index) -gt 0
+            {{indent}}            set inline 1
+            {{indent}}        end
+            {{indent}}    end
+            {{indent}}    if test (count $index) -gt 0
+            {{indent}}        set kind option
+            {{indent}}        set option_id $option_ids[$index]
+            {{indent}}        set maximum $option_maxima[$index]
+            {{indent}}        set option_greedy $option_greedies[$index]
+            {{indent}}        set option_boolean $option_booleans[$index]
+            {{indent}}    else if test $end_options -eq 0; and string match -qr '^-[^-:=].+' -- "$word"
+            {{indent}}        if not test $pending -gt 0 -a $first_value -eq 1 -a $greedy -eq 1
+            {{indent}}            set -l bundle
+            {{indent}}            set -l j 2
+            {{indent}}            while test $j -le (string length -- "$word")
+            {{indent}}                set -l short -(string sub -s $j -l 1 -- "$word")
+            {{indent}}                set index (contains -i -- "$short" $option_names)
+            {{indent}}                if test (count $index) -eq 0
+            {{indent}}                    if test (count $bundle) -gt 0
+            {{indent}}                        set -l rest (string sub -s $j -- "$word" | string replace -r '^[:=]' '')
+            {{indent}}                        set bundle[-1] "$bundle[-1]=$rest"
+            {{indent}}                        if test $current -eq 1
+            {{indent}}                            set value_prefix (string sub -l (math $j - 1) -- "$word")
+            {{indent}}                        end
+            {{indent}}                    end
+            {{indent}}                    break
+            {{indent}}                end
+            {{indent}}                set -a bundle "$short"
+            {{indent}}                set -l rest (string sub -s (math $j + 1) -- "$word")
+            {{indent}}                if test -n "$rest"; and begin; test $option_greedies[$index] -eq 1; or string match -qr '^[:=]' -- "$rest"; end
+            {{indent}}                    set -l prefix_length $j
+            {{indent}}                    if string match -qr '^[:=]' -- "$rest"
+            {{indent}}                        set prefix_length (math $j + 1)
+            {{indent}}                    end
+            {{indent}}                    set rest (string replace -r '^[:=]' '' -- "$rest")
+            {{indent}}                    set bundle[-1] "$short=$rest"
+            {{indent}}                    if test $current -eq 1
+            {{indent}}                        set value_prefix (string sub -l $prefix_length -- "$word")
+            {{indent}}                    end
+            {{indent}}                    break
+            {{indent}}                end
+            {{indent}}                set j (math $j + 1)
+            {{indent}}            end
+            {{indent}}            if test (count $bundle) -gt 0
+            {{indent}}                set -l before (math $i - 1)
+            {{indent}}                set -l after (math $i + 1)
+            {{indent}}                set tokens $tokens[1..$before] $bundle $tokens[$after..-1]
+            {{indent}}                continue
+            {{indent}}            end
+            {{indent}}        end
+            {{indent}}    end
+            {{indent}}end
+            """);
         writer.Indent--;
         writer.WriteLine("end");
         // CaptureRemainingTokens can turn option-looking words into values, so detect its active slot before consuming the token.
