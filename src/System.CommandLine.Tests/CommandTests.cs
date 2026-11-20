@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using System.Collections.Generic;
 using System.CommandLine.Parsing;
+using System.IO;
 using System.Linq;
 using Xunit;
 
@@ -291,6 +293,96 @@ namespace System.CommandLine.Tests
             command.Options
                 .Should()
                 .Contain(option);
+        }
+
+        [Fact]
+        public void Parser_creates_only_the_lazy_subcommands_that_were_matched()
+        {
+            List<string> created = new();
+            RootCommand root = new();
+            root.Subcommands.AddLazy("a", () =>
+            {
+                created.Add("a");
+                Command a = new("a");
+                a.Subcommands.AddLazy("b", () =>
+                {
+                    created.Add("b");
+                    return new Command("b") { new Option<string>("--option") };
+                });
+                a.Subcommands.AddLazy("c", () => throw new InvalidOperationException("c should not be created"));
+                return a;
+            });
+            root.Subcommands.AddLazy("d", () => throw new InvalidOperationException("d should not be created"));
+
+            ParseResult result = root.Parse("a b --option value");
+
+            result.Errors.Should().BeEmpty();
+            result.CommandResult.Command.Name.Should().Be("b");
+            result.GetValue<string>("--option").Should().Be("value");
+            created.Should().Equal("a", "b");
+        }
+
+        [Fact]
+        public void Lazy_subcommand_can_be_matched_by_alias_and_gets_the_declared_aliases()
+        {
+            RootCommand root = new();
+            root.Subcommands.AddLazy("solution", ["sln"], () => new Command("solution"));
+
+            ParseResult result = root.Parse("sln");
+
+            result.Errors.Should().BeEmpty();
+            result.CommandResult.Command.Name.Should().Be("solution");
+            result.CommandResult.Command.Aliases.Should().Equal("sln");
+            result.CommandResult.Command.Parents.Should().Equal(root);
+        }
+
+        [Fact]
+        public void Lazy_subcommand_factory_returning_command_with_different_name_throws()
+        {
+            RootCommand root = new();
+            root.Subcommands.AddLazy("a", () => new Command("b"));
+
+            Action parse = () => root.Parse("a");
+
+            parse.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void Lazy_subcommands_are_created_on_access_but_not_on_count()
+        {
+            int factoryCalls = 0;
+            Command eager = new("eager");
+            RootCommand root = new() { eager };
+            root.Subcommands.AddLazy("lazy", () =>
+            {
+                factoryCalls++;
+                return new Command("lazy");
+            });
+
+            root.Subcommands.Count.Should().Be(2);
+            root.Subcommands.Contains(eager).Should().BeTrue();
+            factoryCalls.Should().Be(0);
+
+            root.Subcommands.Select(c => c.Name).Should().Equal("eager", "lazy");
+            root.Subcommands[1].Should().BeSameAs(root.Subcommands.Single(c => c.Name == "lazy"));
+            factoryCalls.Should().Be(1);
+        }
+
+        [Fact]
+        public void Help_lists_lazy_subcommands_without_creating_their_subcommands()
+        {
+            RootCommand root = new();
+            root.Subcommands.AddLazy("a", () =>
+            {
+                Command a = new("a", "description of a");
+                a.Subcommands.AddLazy("b", () => throw new InvalidOperationException("b should not be created"));
+                return a;
+            });
+            StringWriter output = new();
+
+            root.Parse("--help").Invoke(new() { Output = output });
+
+            output.ToString().Should().Contain("description of a");
         }
     }
 }

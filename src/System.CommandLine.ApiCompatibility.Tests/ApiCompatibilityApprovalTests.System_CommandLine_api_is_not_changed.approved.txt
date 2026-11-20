@@ -44,7 +44,7 @@
     public System.Collections.Generic.IList<Argument> Arguments { get; }
     public System.Collections.Generic.IEnumerable<Symbol> Children { get; }
     public System.Collections.Generic.IList<Option> Options { get; }
-    public System.Collections.Generic.IList<Command> Subcommands { get; }
+    public CommandList Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.CommandResult>> Validators { get; }
     public System.Void Add(Argument argument)
@@ -59,6 +59,21 @@
     public System.Void SetAction(System.Func<ParseResult,System.Threading.Tasks.Task> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.Tasks.Task<System.Int32>> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> action)
+  public class CommandList, System.Collections.Generic.ICollection<Command>, System.Collections.Generic.IEnumerable<Command>, System.Collections.Generic.IList<Command>, System.Collections.IEnumerable
+    public System.Int32 Count { get; }
+    public System.Boolean IsReadOnly { get; }
+    public Command Item { get; set; }
+    public System.Void Add(Command item)
+    public System.Void AddLazy(System.String name, System.Func<Command> factory)
+    public System.Void AddLazy(System.String name, System.String[] aliases, System.Func<Command> factory)
+    public System.Void Clear()
+    public System.Boolean Contains(Command item)
+    public System.Void CopyTo(Command[] array, System.Int32 arrayIndex)
+    public System.Collections.Generic.IEnumerator<Command> GetEnumerator()
+    public System.Int32 IndexOf(Command item)
+    public System.Void Insert(System.Int32 index, Command item)
+    public System.Boolean Remove(Command item)
+    public System.Void RemoveAt(System.Int32 index)
   public static class CompletionSourceExtensions
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)

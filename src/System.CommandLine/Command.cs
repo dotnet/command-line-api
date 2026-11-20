@@ -27,7 +27,7 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         private ChildSymbolList<Argument>? _arguments;
         private ChildSymbolList<Option>? _options;
-        private ChildSymbolList<Command>? _subcommands;
+        private CommandList? _subcommands;
         private List<Action<CommandResult>>? _validators;
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets all of the subcommands for the command.
         /// </summary>
-        public IList<Command> Subcommands => _subcommands ??= new(this);
+        public CommandList Subcommands => _subcommands ??= new(this);
 
         internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
 

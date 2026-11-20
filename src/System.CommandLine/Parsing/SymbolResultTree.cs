@@ -124,9 +124,12 @@ namespace System.CommandLine.Parsing
             {
                 for (var i = 0; i < command.Subcommands.Count; i++)
                 {
-                    var childCommand = command.Subcommands[i];
-                    AddToSymbolsByName(childCommand, command);
-                    PopulateSymbolsByName(childCommand);
+                    // Lazy subcommands that were not created can't have any results.
+                    if (command.Subcommands.GetIfCreated(i, out _, out _) is { } childCommand)
+                    {
+                        AddToSymbolsByName(childCommand, command);
+                        PopulateSymbolsByName(childCommand);
+                    }
                 }
             }
 
