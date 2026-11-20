@@ -10,6 +10,7 @@ using BenchmarkDotNet.Exporters.Json;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Reports;
 using Perfolizer.Horology;
+using Perfolizer.Metrology;
 
 namespace System.CommandLine.Benchmarks
 {
@@ -20,16 +21,16 @@ namespace System.CommandLine.Benchmarks
 #pragma warning restore CA1801 // Review unused parameters
 #pragma warning disable CA1062 // Validate arguments of public methods
             => DefaultConfig.Instance
-                .With(Job.Default
+                .AddJob(Job.Default
                     .WithWarmupCount(1)
                     .WithIterationTime(TimeInterval.FromMilliseconds(250))
                     .WithMinIterationCount(15)
                     .WithMaxIterationCount(20)
                     .AsDefault())
                 .WithArtifactsPath(artifactsPath.FullName)
-                .With(MemoryDiagnoser.Default)
-                .With(JsonExporter.Full)
-                .With(StatisticColumn.Median, StatisticColumn.Min, StatisticColumn.Max)
+                .AddDiagnoser(MemoryDiagnoser.Default)
+                .AddExporter(JsonExporter.Full)
+                .AddColumn(StatisticColumn.Median, StatisticColumn.Min, StatisticColumn.Max)
                 .WithSummaryStyle(SummaryStyle.Default.WithSizeUnit(SizeUnit.B));
 #pragma warning restore CA1062 // Validate arguments of public methods
     }

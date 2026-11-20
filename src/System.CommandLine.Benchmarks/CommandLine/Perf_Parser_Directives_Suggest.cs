@@ -13,26 +13,28 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Directives_Suggest
     {
-        private CliConfiguration _configuration;
+        private RootCommand _eatCommand;
+        private InvocationConfiguration _configuration;
 
         [GlobalSetup]
         public void Setup()
         {
-            CliOption<string> fruitOption = new("--fruit");
+            Option<string> fruitOption = new("--fruit");
             fruitOption.CompletionSources.Add("apple", "banana", "cherry");
 
-            CliOption<string> vegetableOption = new("--vegetable");
+            Option<string> vegetableOption = new("--vegetable");
             vegetableOption.CompletionSources.Add("asparagus", "broccoli", "carrot");
 
-            var eatCommand = new CliCommand("eat")
+            // RootCommand includes SuggestDirective by default.
+            _eatCommand = new RootCommand
             {
                 fruitOption,
                 vegetableOption
             };
+            _eatCommand.Aliases.Add("eat");
 
-            _configuration = new CliConfiguration(eatCommand)
+            _configuration = new InvocationConfiguration
             {
-                Directives = { new SuggestDirective() },
                 Output = System.IO.TextWriter.Null
             };
         }
@@ -45,7 +47,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         [Benchmark]
         public Task InvokeSuggest()
-            => _configuration.InvokeAsync(TestCmdArgs);
+            => _eatCommand.Parse(TestCmdArgs).InvokeAsync(_configuration);
 
     }
 }

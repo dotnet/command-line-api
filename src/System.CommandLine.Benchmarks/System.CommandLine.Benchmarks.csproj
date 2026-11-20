@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>$(NetMinimum)</TargetFramework>
     <OutputType>Exe</OutputType>
+    <ExcludeFromSourceOnlyBuild>true</ExcludeFromSourceOnlyBuild>
   </PropertyGroup>
 
   <ItemGroup>

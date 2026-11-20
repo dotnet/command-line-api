@@ -16,17 +16,17 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public Task<int> DefaultsAsync() => BuildCommand().Parse(Args).InvokeAsync();
 
         [Benchmark]
-        public int MinimalSync() => BuildMinimalConfig(BuildCommand()).Invoke(Args);
+        public int MinimalSync() => BuildMinimalCommand().Parse(Args).Invoke(BuildMinimalConfig());
 
         [Benchmark]
-        public Task<int> MinimalAsync() => BuildMinimalConfig(BuildCommand()).InvokeAsync(Args);
+        public Task<int> MinimalAsync() => BuildMinimalCommand().Parse(Args).InvokeAsync(BuildMinimalConfig());
 
-        private static CliRootCommand BuildCommand()
+        private static RootCommand BuildCommand()
         {
-            CliOption<bool> boolOption = new("--bool", "-b") { Description = "Bool option" };
-            CliOption<string> stringOption = new("--string", "-s") { Description = "String option" };
+            Option<bool> boolOption = new("--bool", "-b") { Description = "Bool option" };
+            Option<string> stringOption = new("--string", "-s") { Description = "String option" };
 
-            CliRootCommand command = new()
+            RootCommand command = new()
             {
                 boolOption,
                 stringOption
@@ -41,13 +41,17 @@ namespace System.CommandLine.Benchmarks.CommandLine
             return command;
         }
 
-        private static CliConfiguration BuildMinimalConfig(CliCommand command)
+        private static RootCommand BuildMinimalCommand()
         {
-            CliConfiguration config = new(command);
-            config.Directives.Clear();
-            config.EnableDefaultExceptionHandler = false;
-            config.ProcessTerminationTimeout = null;
-            return config;
+            RootCommand command = BuildCommand();
+            command.Directives.Clear();
+            return command;
         }
+
+        private static InvocationConfiguration BuildMinimalConfig() => new()
+        {
+            EnableDefaultExceptionHandler = false,
+            ProcessTerminationTimeout = null
+        };
     }
 }

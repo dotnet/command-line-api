@@ -20,6 +20,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/System.CommandLine.ApiCompatibility.Tests/System.CommandLine.ApiCompatibility.Tests.csproj" />
+    <Project Path="src/System.CommandLine.Benchmarks/System.CommandLine.Benchmarks.csproj" />
     <Project Path="src/System.CommandLine.StaticCompletions.Tests/System.CommandLine.StaticCompletions.Tests.csproj" />
     <Project Path="src/System.CommandLine.StaticCompletions/System.CommandLine.StaticCompletions.csproj" />
     <Project Path="src/System.CommandLine.Suggest.Tests/dotnet-suggest.Tests.csproj" />

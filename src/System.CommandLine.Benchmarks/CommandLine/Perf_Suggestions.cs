@@ -15,7 +15,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Suggestions
     {
-        private CliOption _testSymbol;
+        private Option _testSymbol;
         private ParseResult _testParseResult;
 
         /// <remarks>
@@ -27,9 +27,9 @@ namespace System.CommandLine.Benchmarks.CommandLine
                          .Select(i => $"suggestion{i}")
                          .ToArray();
 
-        private IEnumerable<CliOption> GenerateOptionsArray(int count)
+        private IEnumerable<Option> GenerateOptionsArray(int count)
             => Enumerable.Range(0, count)
-                         .Select(i => new CliOption<string>($"suggestion{i}"));
+                         .Select(i => new Option<string>($"suggestion{i}"));
 
         [Params(1, 5, 20, 100)]
         public int TestSuggestionsCount;
@@ -37,7 +37,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [GlobalSetup(Target = nameof(SuggestionsFromSymbol))]
         public void Setup_FromSymbol()
         {
-            _testSymbol = new CliOption<string>("--hello");
+            _testSymbol = new Option<string>("--hello");
             _testSymbol.CompletionSources.Add(GenerateSuggestionsArray(TestSuggestionsCount));
         }
 
@@ -50,7 +50,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [GlobalSetup(Target = nameof(SuggestionsFromParseResult))]
         public void Setup_FromParseResult()
         {
-            var testCommand = new CliCommand("command");
+            var testCommand = new Command("command");
 
             foreach (var option in GenerateOptionsArray(TestSuggestionsCount))
             {

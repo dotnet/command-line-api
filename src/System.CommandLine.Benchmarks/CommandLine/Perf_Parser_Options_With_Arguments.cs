@@ -10,17 +10,17 @@ using BenchmarkDotNet.Attributes;
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="CliParser"/> when parsing options with arguments.
+    /// Measures the performance of <see cref="CommandLineParser"/> when parsing options with arguments.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Options_With_Arguments
     {
         private string _testSymbolsAsString;
-        private CliConfiguration _configuration;
+        private RootCommand _rootCommand;
 
-        private IEnumerable<CliOption> GenerateTestOptions(int count, ArgumentArity arity)
+        private IEnumerable<Option> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)
-                         .Select(i => new CliOption<string>($"-option{i}")
+                         .Select(i => new Option<string>($"-option{i}")
                              {
                                  Arity = arity,
                                  Description = $"Description for -option {i} ...."
@@ -54,11 +54,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public void SetupParserFromOptionsWithArguments_Parse()
         {
             var testSymbolsArr = GenerateTestOptions(TestOptionsCount, ArgumentArity.OneOrMore).ToArray();
-            _configuration = testSymbolsArr.CreateConfiguration();
+            _rootCommand = testSymbolsArr.CreateRootCommand();
             _testSymbolsAsString = GenerateTestOptionsWithArgumentsAsStringExpr(testSymbolsArr.Length, TestArgumentsCount);
         }
 
         [Benchmark]
-        public ParseResult ParserFromOptionsWithArguments_Parse() => _configuration.Parse(_testSymbolsAsString);
+        public ParseResult ParserFromOptionsWithArguments_Parse() => _rootCommand.Parse(_testSymbolsAsString);
     }
 }
