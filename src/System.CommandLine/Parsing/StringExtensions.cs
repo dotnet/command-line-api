@@ -141,7 +141,10 @@ namespace System.CommandLine.Parsing
                                 break;
 
                             case TokenType.Command:
-                                Command cmd = (Command)token.Symbol!;
+                                // A null symbol means it's a lazy subcommand of the command for which knownTokens were created.
+                                Command cmd = token.Symbol is null
+                                    ? currentCommand.Subcommands.GetLazy(arg)
+                                    : (Command)token.Symbol;
                                 if (cmd != currentCommand)
                                 {
                                     if (cmd != rootCommand)
@@ -414,7 +417,20 @@ namespace System.CommandLine.Parsing
                 var subCommands = command.Subcommands;
                 for (int i = 0; i < subCommands.Count; i++)
                 {
-                    AddCommandTokens(tokens, subCommands[i]);
+                    if (subCommands.GetIfCreated(i, out string name, out string[] aliases) is { } subCommand)
+                    {
+                        AddCommandTokens(tokens, subCommand);
+                    }
+                    else
+                    {
+                        // Lazy subcommands are not created here, the tokenizer creates them only when they are matched.
+                        tokens.Add(name, new Token(name, TokenType.Command, null, Token.ImplicitPosition));
+
+                        for (int j = 0; j < aliases.Length; j++)
+                        {
+                            tokens.Add(aliases[j], new Token(aliases[j], TokenType.Command, null, Token.ImplicitPosition));
+                        }
+                    }
                 }
             }
 
