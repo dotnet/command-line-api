@@ -11,77 +11,138 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_LazySubcommands
     {
-        private const int TopLevelCommandCount = 30;
-        private const int NestedCommandCount = 5;
-        private const int OptionCount = 10;
+        [Params(3, 10)]
+        public int TopLevelCommandCount { get; set; }
 
-        private readonly string[] _args = ["command15", "subcommand3", "--option7", "value", "argument"];
+        [Params(2, 5)]
+        public int NestedCommandCount { get; set; }
+
+        [Params(3, 10)]
+        public int OptionCount { get; set; }
+
+        // Precomputed, so they behave like string literals used by real-world code.
+        private string[] TopLevelNames;
+        private string[] NestedNames;
+        private string[] OptionNames;
+        private string[] OptionAliases;
+        private string[] OptionDescriptions;
+
+        // Real-world code uses static lambdas, which the compiler allocates once and caches.
+        private Func<Command>[] TopLevelFactories;
+        private Func<Command>[] NestedFactories;
+
+        private string[] _args;
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            TopLevelNames = CreateStrings(TopLevelCommandCount, "command{0}");
+            NestedNames = CreateStrings(NestedCommandCount, "subcommand{0}");
+            OptionNames = CreateStrings(OptionCount, "--option{0}");
+            OptionAliases = CreateStrings(OptionCount, "-o{0}");
+            OptionDescriptions = CreateStrings(OptionCount, "option {0} description");
+
+            TopLevelFactories = CreateFactories(TopLevelNames, name => () => CreateTopLevelCommand_Lazy(name));
+            NestedFactories = CreateFactories(NestedNames, name => () => CreateCommand(name));
+
+            _args = [TopLevelNames[TopLevelCommandCount - 1], NestedNames[NestedCommandCount - 1], OptionNames[OptionCount - 1], "value", "argument"];
+        }
 
         [Benchmark]
-        public RootCommand Create_Eager() => CreateRootCommand(lazy: false);
+        public RootCommand Create_Eager() => CreateRootCommand_Eager();
 
         [Benchmark]
-        public RootCommand Create_Lazy() => CreateRootCommand(lazy: true);
+        public RootCommand Create_Lazy() => CreateRootCommand_Lazy();
 
         [Benchmark]
-        public ParseResult CreateAndParse_Eager() => CreateRootCommand(lazy: false).Parse(_args);
+        public ParseResult CreateAndParse_Eager() => CreateRootCommand_Eager().Parse(_args);
 
         [Benchmark]
-        public ParseResult CreateAndParse_Lazy() => CreateRootCommand(lazy: true).Parse(_args);
+        public ParseResult CreateAndParse_Lazy() => CreateRootCommand_Lazy().Parse(_args);
 
-        private static RootCommand CreateRootCommand(bool lazy)
+        private RootCommand CreateRootCommand_Eager()
         {
             RootCommand root = new("root command description");
 
-            for (int i = 0; i < TopLevelCommandCount; i++)
+            for (int i = 0; i < TopLevelNames.Length; i++)
             {
-                string name = $"command{i}";
-                AddSubcommand(root, name, () => CreateTopLevelCommand(name, lazy), lazy);
+                root.Subcommands.Add(CreateTopLevelCommand_Eager(TopLevelNames[i]));
             }
 
             return root;
         }
 
-        private static Command CreateTopLevelCommand(string name, bool lazy)
+        private RootCommand CreateRootCommand_Lazy()
+        {
+            RootCommand root = new("root command description");
+
+            for (int i = 0; i < TopLevelNames.Length; i++)
+            {
+                root.Subcommands.AddLazy(TopLevelNames[i], TopLevelFactories[i]);
+            }
+
+            return root;
+        }
+
+        private Command CreateTopLevelCommand_Eager(string name)
         {
             Command command = CreateCommand(name);
 
-            for (int i = 0; i < NestedCommandCount; i++)
+            for (int i = 0; i < NestedNames.Length; i++)
             {
-                string nestedName = $"subcommand{i}";
-                AddSubcommand(command, nestedName, () => CreateCommand(nestedName), lazy);
+                command.Subcommands.Add(CreateCommand(NestedNames[i]));
             }
 
             return command;
         }
 
-        private static Command CreateCommand(string name)
+        private Command CreateTopLevelCommand_Lazy(string name)
         {
-            Command command = new(name, $"{name} description")
+            Command command = CreateCommand(name);
+
+            for (int i = 0; i < NestedNames.Length; i++)
+            {
+                command.Subcommands.AddLazy(NestedNames[i], NestedFactories[i]);
+            }
+
+            return command;
+        }
+
+        private Command CreateCommand(string name)
+        {
+            Command command = new(name, "command description")
             {
                 new Argument<string>("argument") { Description = "argument description" }
             };
 
-            for (int i = 0; i < OptionCount; i++)
+            for (int i = 0; i < OptionNames.Length; i++)
             {
-                command.Options.Add(new Option<string>($"--option{i}", $"-o{i}") { Description = $"option {i} description" });
+                command.Options.Add(new Option<string>(OptionNames[i], OptionAliases[i]) { Description = OptionDescriptions[i] });
             }
 
-            command.SetAction(_ => 0);
+            command.SetAction(static _ => 0);
 
             return command;
         }
 
-        private static void AddSubcommand(Command parent, string name, Func<Command> factory, bool lazy)
+        private static string[] CreateStrings(int count, string format)
         {
-            if (lazy)
+            string[] strings = new string[count];
+            for (int i = 0; i < count; i++)
             {
-                parent.Subcommands.AddLazy(name, factory);
+                strings[i] = string.Format(format, i);
             }
-            else
+            return strings;
+        }
+
+        private static Func<Command>[] CreateFactories(string[] names, Func<string, Func<Command>> createFactory)
+        {
+            Func<Command>[] factories = new Func<Command>[names.Length];
+            for (int i = 0; i < names.Length; i++)
             {
-                parent.Subcommands.Add(factory());
+                factories[i] = createFactory(names[i]);
             }
+            return factories;
         }
     }
 }
