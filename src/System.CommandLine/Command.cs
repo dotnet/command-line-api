@@ -8,6 +8,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
@@ -27,7 +28,7 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         private ChildSymbolList<Argument>? _arguments;
         private ChildSymbolList<Option>? _options;
-        private ChildSymbolList<Command>? _subcommands;
+        internal SubcommandList? _subcommands;
         private List<Action<CommandResult>>? _validators;
 
         /// <summary>
@@ -232,6 +233,62 @@ namespace System.CommandLine
         public void Add(Command command) => Subcommands.Add(command);
 
         /// <summary>
+        /// Adds a lazily initialized subcommand to the command.
+        /// </summary>
+        /// <param name="name">The name of the subcommand. This must match the <see cref="Symbol.Name"/> of the command returned by <paramref name="commandFactory"/>.</param>
+        /// <param name="commandFactory">The factory invoked to create the subcommand when needed.</param>
+        public void Add(string name, Func<Command> commandFactory)
+            => (_subcommands ??= new(this)).AddLazy(name, ReadOnlySpan<string>.Empty, commandFactory);
+
+        /// <summary>
+        /// Adds a lazily initialized subcommand with aliases to the command.
+        /// </summary>
+        /// <param name="name">The name of the subcommand. This must match the <see cref="Symbol.Name"/> of the command returned by <paramref name="commandFactory"/>.</param>
+        /// <param name="aliases">Aliases by which the subcommand can be specified on the command line.</param>
+        /// <param name="commandFactory">The factory invoked to create the subcommand when needed.</param>
+        public void Add(string name, ReadOnlySpan<string> aliases, Func<Command> commandFactory)
+            => (_subcommands ??= new(this)).AddLazy(name, aliases, commandFactory);
+
+        /// <summary>
+        /// Attempts to get a direct subcommand matching the specified name or alias using ordinal comparison,
+        /// materializing only the matched subcommand if it was registered lazily.
+        /// </summary>
+        /// <param name="nameOrAlias">The subcommand name or alias to locate.</param>
+        /// <param name="subcommand">When this method returns <see langword="true"/>, contains the matching subcommand; otherwise, <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if a matching direct subcommand was found; otherwise, <see langword="false"/>.</returns>
+        public bool TryGetSubcommand(string nameOrAlias, [NotNullWhen(true)] out Command? subcommand)
+            => TryGetSubcommand(nameOrAlias, StringComparison.Ordinal, out subcommand);
+
+        /// <summary>
+        /// Attempts to get a direct subcommand matching the specified name or alias using the specified comparison,
+        /// materializing only the matched subcommand if it was registered lazily.
+        /// </summary>
+        /// <param name="nameOrAlias">The subcommand name or alias to locate.</param>
+        /// <param name="comparisonType">One of the enumeration values that specifies how the strings will be compared.</param>
+        /// <param name="subcommand">When this method returns <see langword="true"/>, contains the matching subcommand; otherwise, <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if a matching direct subcommand was found; otherwise, <see langword="false"/>.</returns>
+        public bool TryGetSubcommand(string nameOrAlias, StringComparison comparisonType, [NotNullWhen(true)] out Command? subcommand)
+        {
+            if (nameOrAlias is null)
+            {
+                throw new ArgumentNullException(nameof(nameOrAlias));
+            }
+
+            if ((uint)comparisonType > (uint)StringComparison.OrdinalIgnoreCase)
+            {
+                throw new ArgumentException("Value is not a valid StringComparison.", nameof(comparisonType));
+            }
+
+            if (_subcommands is { Count: > 0 } subcommands)
+            {
+                return subcommands.TryGetSubcommand(nameOrAlias, comparisonType, out subcommand);
+            }
+
+            subcommand = null;
+            return false;
+        }
+
+        /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors.
         /// </summary>
         /// <value><see langword="true"/> to fail validation when an extra command or argument is provided; otherwise, <see langword="false"/>.</value>
@@ -359,5 +416,31 @@ namespace System.CommandLine
 
         internal bool EqualsNameOrAlias(string name)
             => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));
+
+        internal bool EqualsNameOrAlias(string name, StringComparison comparisonType)
+        {
+            if (comparisonType == StringComparison.Ordinal)
+            {
+                return EqualsNameOrAlias(name);
+            }
+
+            if (Name.Equals(name, comparisonType))
+            {
+                return true;
+            }
+
+            if (_aliases is not null)
+            {
+                foreach (string alias in _aliases)
+                {
+                    if (alias.Equals(name, comparisonType))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }

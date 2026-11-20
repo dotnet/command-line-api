@@ -5,6 +5,8 @@ namespace System.CommandLine
 {
     internal sealed class SymbolNode
     {
+        private volatile SymbolNode? _next;
+
         internal SymbolNode(Symbol symbol, Command? parent = null)
         {
             Symbol = symbol;
@@ -15,6 +17,10 @@ namespace System.CommandLine
 
         internal Command? Parent { get; }
 
-        internal SymbolNode? Next { get; set; }
+        internal SymbolNode? Next
+        {
+            get => _next;
+            set => _next = value;
+        }
     }
 }

@@ -38,6 +38,7 @@ namespace System.CommandLine.Parsing
                 _rootCommand,
                 CurrentToken,
                 _symbolResultTree);
+            _symbolResultTree.InnermostCommandResult = _innermostCommandResult;
             _symbolResultTree.Add(_rootCommand, _rootCommandResult);
 
             Advance();
@@ -84,6 +85,7 @@ namespace System.CommandLine.Parsing
                 _symbolResultTree,
                 _innermostCommandResult);
 
+            _symbolResultTree.InnermostCommandResult = _innermostCommandResult;
             _symbolResultTree.Add(command, _innermostCommandResult);
 
             Advance();

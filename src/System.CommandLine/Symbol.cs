@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Completions;
 using System.Diagnostics;
+using System.Threading;
 
 namespace System.CommandLine
 {
@@ -27,25 +28,63 @@ namespace System.CommandLine
         /// </summary>
         public string Name { get; }
 
+        private volatile SymbolNode? _firstParent;
+
         /// <summary>
         /// Represents the first parent node.
         /// </summary>
-        internal SymbolNode? FirstParent { get; private set; }
+        internal SymbolNode? FirstParent => _firstParent;
 
         internal void AddParent(Symbol symbol)
         {
-            if (FirstParent == null)
+            SymbolNode newNode = new(symbol);
+            if (Interlocked.CompareExchange(ref _firstParent, newNode, null) is null)
             {
-                FirstParent = new SymbolNode(symbol);
+                return;
             }
-            else
+
+            lock (this)
             {
-                SymbolNode current = FirstParent;
-                while (current.Next is not null)
+                if (_firstParent is null)
                 {
+                    _firstParent = newNode;
+                }
+                else
+                {
+                    SymbolNode current = _firstParent;
+                    while (current.Next is not null)
+                    {
+                        current = current.Next;
+                    }
+                    current.Next = newNode;
+                }
+            }
+        }
+
+        internal void RemoveParent(Symbol symbol)
+        {
+            lock (this)
+            {
+                SymbolNode? previous = null;
+                SymbolNode? current = _firstParent;
+                while (current is not null)
+                {
+                    if (ReferenceEquals(current.Symbol, symbol))
+                    {
+                        if (previous is null)
+                        {
+                            _firstParent = current.Next;
+                        }
+                        else
+                        {
+                            previous.Next = current.Next;
+                        }
+                        return;
+                    }
+
+                    previous = current;
                     current = current.Next;
                 }
-                current.Next = new SymbolNode(symbol);
             }
         }
 
