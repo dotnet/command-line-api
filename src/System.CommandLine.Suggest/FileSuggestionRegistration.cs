@@ -47,25 +47,21 @@ namespace System.CommandLine.Suggest
                 return null;
             }
 
-            string completionTarget = null;
+            var comparison = OperatingSystem.IsWindows()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
             using (var sr = new StreamReader(_registrationConfigurationFilePath, Encoding.UTF8))
             {
                 while (sr.ReadLine() is string line)
                 {
-                    if (line.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase))
+                    if (line.Equals(soughtExecutable.FullName, comparison))
                     {
-                        completionTarget = line;
+                        return new Registration(line);
                     }
                 }
             }
 
-            if (completionTarget is null)
-            {
-                // Completion provider not found!
-                return null;
-            }
-
-            return new Registration(completionTarget);
+            return null;
         }
 
         public IEnumerable<Registration> FindAllRegistrations()
@@ -92,9 +88,15 @@ namespace System.CommandLine.Suggest
 
         public void AddSuggestionRegistration(Registration registration)
         {
+            var executable = new FileInfo(registration.ExecutablePath);
+            if (FindRegistration(executable) is not null)
+            {
+                return;
+            }
+
             using (var writer = new StreamWriter(_registrationConfigurationFilePath, true))
             {
-                writer.WriteLine(registration.ExecutablePath);
+                writer.WriteLine(executable.FullName);
             }
         }
     }
