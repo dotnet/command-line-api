@@ -41,6 +41,12 @@ namespace System.CommandLine.Parsing
             var foundDoubleDash = false;
             var foundEndOfDirectives = false;
 
+            bool hasCaptureRemainingArgs = HasCaptureRemainingArguments(currentCommand);
+            int currentArgIndex = 0;
+            int currentArgCount = 0;
+            Option? activeOption = null;
+            int activeOptionArgCount = 0;
+
             var tokenList = new List<Token>(args.Count);
 
             var knownTokens = rootCommand.ValidTokens();
@@ -62,9 +68,20 @@ namespace System.CommandLine.Parsing
                     continue;
                 }
 
+                if (hasCaptureRemainingArgs && IsMidCapture())
+                {
+                    activeOption = null;
+                    activeOptionArgCount = 0;
+                    currentArgCount++;
+                    tokenList.Add(CommandArgument(arg, currentCommand));
+                    continue;
+                }
+
                 if (!foundDoubleDash &&
                     arg == "--")
                 {
+                    activeOption = null;
+                    activeOptionArgCount = 0;
                     tokenList.Add(DoubleDash());
                     foundDoubleDash = true;
                     continue;
@@ -126,22 +143,36 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
+                if (hasCaptureRemainingArgs && IsCapturingNonArgumentToken())
+                {
+                    activeOption = null;
+                    activeOptionArgCount = 0;
+                    currentArgCount++;
+                    tokenList.Add(CommandArgument(arg, currentCommand));
+                    continue;
+                }
+
                 if (knownTokens.TryGetValue(arg, out var token))
                 {
                     if (PreviousTokenIsAnOptionExpectingAnArgument(out var option))
                     {
                         tokenList.Add(OptionArgument(arg, option!));
+                        RecordArgument(arg);
                     }
                     else
                     {
                         switch (token.Type)
                         {
                             case TokenType.Option:
-                                tokenList.Add(Option(arg, (Option)token.Symbol!));
+                                Option matchedOpt = (Option)token.Symbol!;
+                                tokenList.Add(Option(arg, matchedOpt));
+                                RecordOption(matchedOpt);
                                 break;
 
                             case TokenType.Command:
-                                Command cmd = (Command)token.Symbol!;
+                                Command cmd = token.Symbol is null
+                                    ? currentCommand._subcommands!.GetLazy(arg)
+                                    : (Command)token.Symbol;
                                 if (cmd != currentCommand)
                                 {
                                     if (cmd != rootCommand)
@@ -149,11 +180,17 @@ namespace System.CommandLine.Parsing
                                         knownTokens = cmd.ValidTokens(); // config contains Directives, they are allowed only for RootCommand
                                     }
                                     currentCommand = cmd;
+                                    ResetCaptureState(currentCommand);
                                     tokenList.Add(Command(arg, cmd));
                                 }
                                 else
                                 {
+                                    bool isRootInitialToken = tokenList.Count == 0;
                                     tokenList.Add(Argument(arg));
+                                    if (!isRootInitialToken)
+                                    {
+                                        RecordArgument(arg);
+                                    }
                                 }
 
                                 break;
@@ -164,11 +201,14 @@ namespace System.CommandLine.Parsing
                          knownTokens.TryGetValue(first, out var subtoken) &&
                          subtoken.Type == TokenType.Option)
                 {
-                    tokenList.Add(Option(first, (Option)subtoken.Symbol!));
+                    Option splitOpt = (Option)subtoken.Symbol!;
+                    tokenList.Add(Option(first, splitOpt));
+                    RecordOption(splitOpt);
 
                     if (rest is not null)
                     {
                         tokenList.Add(Argument(rest));
+                        RecordArgument(rest);
                     }
                 }
                 else if (!configuration.EnablePosixBundling ||
@@ -176,6 +216,7 @@ namespace System.CommandLine.Parsing
                          !TryUnbundle(arg.AsSpan(1), i))
                 {
                     tokenList.Add(Argument(arg));
+                    RecordArgument(arg);
                 }
 
                 Token Argument(string value) => new(value, TokenType.Argument, default, i);
@@ -206,13 +247,22 @@ namespace System.CommandLine.Parsing
             bool TryUnbundle(ReadOnlySpan<char> alias, int argumentIndex)
             {
                 int tokensBefore = tokenList.Count;
+                Command commandBefore = currentCommand;
+                Dictionary<string, Token> knownTokensBefore = knownTokens;
+                bool hasCaptureRemainingArgsBefore = hasCaptureRemainingArgs;
+                int currentArgIndexBefore = currentArgIndex;
+                int currentArgCountBefore = currentArgCount;
+                Option? activeOptionBefore = activeOption;
+                int activeOptionArgCountBefore = activeOptionArgCount;
 
                 Span<char> candidate = ['-', '-'];
                 for (int i = 0; i < alias.Length; i++)
                 {
                     if (alias[i] == ':' || alias[i] == '=')
                     {
-                        tokenList.Add(new Token(alias.Slice(i + 1).ToString(), TokenType.Argument, default, argumentIndex));
+                        string val = alias.Slice(i + 1).ToString();
+                        tokenList.Add(new Token(val, TokenType.Argument, default, argumentIndex));
+                        RecordArgument(val);
                         return true;
                     }
 
@@ -222,27 +272,186 @@ namespace System.CommandLine.Parsing
                         if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == TokenType.Option)
                         {
                             // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
-                            tokenList.Add(new Token(alias.Slice(i).ToString(), TokenType.Argument, default, argumentIndex));
+                            string val = alias.Slice(i).ToString();
+                            tokenList.Add(new Token(val, TokenType.Argument, default, argumentIndex));
+                            RecordArgument(val);
                             return true;
+                        }
+
+                        if (tokenList.Count > tokensBefore)
+                        {
+                            RestoreBundleState();
                         }
 
                         return false;
                     }
 
-                    tokenList.Add(new Token(found.Value, found.Type, found.Symbol, argumentIndex));
-                    if (i != alias.Length - 1 && ((Option)found.Symbol!).Greedy)
+                    if (found.Type == TokenType.Command)
                     {
-                        int index = i + 1;
-                        if (alias[index] == ':' || alias[index] == '=')
+                        if (i != alias.Length - 1)
                         {
-                            index++; // Last_bundled_option_can_accept_argument_with_colon_separator
+                            RestoreBundleState();
+                            return false;
                         }
-                        tokenList.Add(new Token(alias.Slice(index).ToString(), TokenType.Argument, default, argumentIndex));
-                        return true;
+
+                        Command cmd = found.Symbol is null
+                            ? currentCommand._subcommands!.GetLazy(found.Value)
+                            : (Command)found.Symbol;
+
+                        if (cmd != currentCommand)
+                        {
+                            if (cmd != rootCommand)
+                            {
+                                knownTokens = cmd.ValidTokens();
+                            }
+                            currentCommand = cmd;
+                            ResetCaptureState(currentCommand);
+                            tokenList.Add(new Token(found.Value, TokenType.Command, cmd, argumentIndex));
+                        }
+                        else
+                        {
+                            tokenList.Add(new Token(found.Value, TokenType.Argument, default, argumentIndex));
+                            RecordArgument(found.Value);
+                        }
+                    }
+                    else
+                    {
+                        Option opt = (Option)found.Symbol!;
+                        tokenList.Add(new Token(found.Value, found.Type, opt, argumentIndex));
+                        RecordOption(opt);
+
+                        if (i != alias.Length - 1 && opt.Greedy)
+                        {
+                            int index = i + 1;
+                            if (alias[index] == ':' || alias[index] == '=')
+                            {
+                                index++; // Last_bundled_option_can_accept_argument_with_colon_separator
+                            }
+                            string val = alias.Slice(index).ToString();
+                            tokenList.Add(new Token(val, TokenType.Argument, default, argumentIndex));
+                            RecordArgument(val);
+                            return true;
+                        }
                     }
                 }
 
                 return true;
+
+                void RestoreBundleState()
+                {
+                    if (tokenList.Count > tokensBefore)
+                    {
+                        tokenList.RemoveRange(tokensBefore, tokenList.Count - tokensBefore);
+                    }
+
+                    currentCommand = commandBefore;
+                    knownTokens = knownTokensBefore;
+                    hasCaptureRemainingArgs = hasCaptureRemainingArgsBefore;
+                    currentArgIndex = currentArgIndexBefore;
+                    currentArgCount = currentArgCountBefore;
+                    activeOption = activeOptionBefore;
+                    activeOptionArgCount = activeOptionArgCountBefore;
+                }
+            }
+
+            void ResetCaptureState(Command cmd)
+            {
+                hasCaptureRemainingArgs = HasCaptureRemainingArguments(cmd);
+                currentArgIndex = 0;
+                currentArgCount = 0;
+                activeOption = null;
+                activeOptionArgCount = 0;
+            }
+
+            void RecordOption(Option opt)
+            {
+                if (!hasCaptureRemainingArgs)
+                {
+                    return;
+                }
+
+                activeOption = opt;
+                activeOptionArgCount = 0;
+            }
+
+            void RecordArgument(string val)
+            {
+                if (!hasCaptureRemainingArgs)
+                {
+                    return;
+                }
+
+                if (activeOption is not null)
+                {
+                    Argument optArg = activeOption.Argument;
+                    if (activeOptionArgCount < optArg.Arity.MaximumNumberOfValues &&
+                        !(optArg.IsBoolean() && !bool.TryParse(val, out _)))
+                    {
+                        activeOptionArgCount++;
+                        if (!activeOption.AllowMultipleArgumentsPerToken)
+                        {
+                            activeOption = null;
+                            activeOptionArgCount = 0;
+                        }
+                        return;
+                    }
+
+                    activeOption = null;
+                    activeOptionArgCount = 0;
+                }
+
+                IList<Argument> cmdArgs = currentCommand.Arguments;
+                while (currentArgIndex < cmdArgs.Count &&
+                       currentArgCount >= cmdArgs[currentArgIndex].Arity.MaximumNumberOfValues)
+                {
+                    currentArgCount = 0;
+                    currentArgIndex++;
+                }
+
+                if (currentArgIndex < cmdArgs.Count)
+                {
+                    currentArgCount++;
+                }
+            }
+
+            bool IsMidCapture()
+            {
+                if (tokenList.Count == 0 || activeOption is not null)
+                {
+                    return false;
+                }
+
+                IList<Argument> cmdArgs = currentCommand.Arguments;
+                while (currentArgIndex < cmdArgs.Count &&
+                       currentArgCount >= cmdArgs[currentArgIndex].Arity.MaximumNumberOfValues)
+                {
+                    currentArgCount = 0;
+                    currentArgIndex++;
+                }
+
+                return currentArgIndex < cmdArgs.Count &&
+                       cmdArgs[currentArgIndex].CaptureRemainingTokens &&
+                       currentArgCount > 0;
+            }
+
+            bool IsCapturingNonArgumentToken()
+            {
+                if (tokenList.Count == 0 || PreviousTokenIsAnOptionExpectingAnArgument(out _))
+                {
+                    return false;
+                }
+
+                IList<Argument> cmdArgs = currentCommand.Arguments;
+                while (currentArgIndex < cmdArgs.Count &&
+                       currentArgCount >= cmdArgs[currentArgIndex].Arity.MaximumNumberOfValues)
+                {
+                    currentArgCount = 0;
+                    currentArgIndex++;
+                }
+
+                return currentArgIndex < cmdArgs.Count &&
+                       cmdArgs[currentArgIndex].CaptureRemainingTokens &&
+                       (currentArgIndex > 0 || currentArgCount > 0);
             }
 
             bool PreviousTokenIsAnOptionExpectingAnArgument(out Option? option)
@@ -393,6 +602,25 @@ namespace System.CommandLine.Parsing
             }
         }
 
+        private static bool HasCaptureRemainingArguments(Command command)
+        {
+            if (!command.HasArguments)
+            {
+                return false;
+            }
+
+            IList<Argument> arguments = command.Arguments;
+            for (int i = 0; i < arguments.Count; i++)
+            {
+                if (arguments[i].CaptureRemainingTokens)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static Dictionary<string, Token> ValidTokens(this Command command)
         {
             Dictionary<string, Token> tokens = new(StringComparer.Ordinal);
@@ -409,12 +637,11 @@ namespace System.CommandLine.Parsing
 
             AddCommandTokens(tokens, command);
 
-            if (command.HasSubcommands)
+            if (command._subcommands is { Count: > 0 } subCommands)
             {
-                var subCommands = command.Subcommands;
                 for (int i = 0; i < subCommands.Count; i++)
                 {
-                    AddCommandTokens(tokens, subCommands[i]);
+                    subCommands.AddEntryTokens(tokens, i);
                 }
             }
 

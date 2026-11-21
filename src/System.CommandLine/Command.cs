@@ -27,7 +27,7 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         private ChildSymbolList<Argument>? _arguments;
         private ChildSymbolList<Option>? _options;
-        private ChildSymbolList<Command>? _subcommands;
+        internal SubcommandList? _subcommands;
         private List<Action<CommandResult>>? _validators;
 
         /// <summary>
@@ -232,6 +232,23 @@ namespace System.CommandLine
         public void Add(Command command) => Subcommands.Add(command);
 
         /// <summary>
+        /// Adds a lazily initialized subcommand to the command.
+        /// </summary>
+        /// <param name="name">The name of the subcommand. This must match the <see cref="Symbol.Name"/> of the command returned by <paramref name="commandFactory"/>.</param>
+        /// <param name="commandFactory">The factory invoked to create the subcommand when needed.</param>
+        public void Add(string name, Func<Command> commandFactory)
+            => (_subcommands ??= new(this)).AddLazy(name, ReadOnlySpan<string>.Empty, commandFactory);
+
+        /// <summary>
+        /// Adds a lazily initialized subcommand with aliases to the command.
+        /// </summary>
+        /// <param name="name">The name of the subcommand. This must match the <see cref="Symbol.Name"/> of the command returned by <paramref name="commandFactory"/>.</param>
+        /// <param name="aliases">Aliases by which the subcommand can be specified on the command line.</param>
+        /// <param name="commandFactory">The factory invoked to create the subcommand when needed.</param>
+        public void Add(string name, ReadOnlySpan<string> aliases, Func<Command> commandFactory)
+            => (_subcommands ??= new(this)).AddLazy(name, aliases, commandFactory);
+
+        /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors.
         /// </summary>
         /// <value><see langword="true"/> to fail validation when an extra command or argument is provided; otherwise, <see langword="false"/>.</value>
@@ -359,5 +376,31 @@ namespace System.CommandLine
 
         internal bool EqualsNameOrAlias(string name)
             => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));
+
+        internal bool EqualsNameOrAlias(string name, StringComparison comparisonType)
+        {
+            if (comparisonType == StringComparison.Ordinal)
+            {
+                return EqualsNameOrAlias(name);
+            }
+
+            if (Name.Equals(name, comparisonType))
+            {
+                return true;
+            }
+
+            if (_aliases is not null)
+            {
+                foreach (string alias in _aliases)
+                {
+                    if (alias.Equals(name, comparisonType))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }
