@@ -1,9 +1,15 @@
 # dotnet suggest shell start
-if (Get-Command "dotnet-suggest" -errorAction SilentlyContinue)
-{
-    $availableToComplete = (dotnet-suggest list) | Out-String
-    $availableToCompleteArray = $availableToComplete.Split([Environment]::NewLine, [System.StringSplitOptions]::RemoveEmptyEntries)
+# Builds the same list as `dotnet-suggest list` without starting a process, to keep shell startup fast.
+$dotnetSuggestHome = if ($env:DOTNET_CLI_HOME) { $env:DOTNET_CLI_HOME } else { $HOME }
+$availableToCompleteArray = @(
+    try { [System.IO.Directory]::GetFiles("$dotnetSuggestHome/.dotnet/tools") } catch { }
+    try { [System.IO.File]::ReadAllLines("$HOME/.dotnet-suggest-registration.txt") } catch { }
+)
+$availableToCompleteArray = @($availableToCompleteArray -replace '^\s+|\s+$' -replace '^.*[\\/]' -replace '\.[^.]*$' -ne '')
+$availableToCompleteArray += @($availableToCompleteArray -clike 'dotnet-*' -creplace '^dotnet-', 'dotnet ')
 
+if ($availableToCompleteArray -contains "dotnet-suggest" -or (Get-Command "dotnet-suggest" -errorAction SilentlyContinue))
+{
     Register-ArgumentCompleter -Native -CommandName $availableToCompleteArray -ScriptBlock {
         param($wordToComplete, $commandAst, $cursorPosition)
         $fullpath = (Get-Command $commandAst.CommandElements[0]).Source
@@ -20,5 +26,5 @@ else
     "See the following for tool installation: https://www.nuget.org/packages/dotnet-suggest"
 }
 
-$env:DOTNET_SUGGEST_SCRIPT_VERSION = "1.0.2"
+$env:DOTNET_SUGGEST_SCRIPT_VERSION = "1.0.3"
 # dotnet suggest script end
