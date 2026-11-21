@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Diagnostics.CodeAnalysis;
+using System.Runtime.ExceptionServices;
 
 namespace System.CommandLine
 {
@@ -42,8 +42,7 @@ namespace System.CommandLine
             }
             else
             {
-                string? first = null;
-                List<string>? multiple = null;
+                int uniqueCount = 0;
 
                 for (int i = 0; i < aliases.Length; i++)
                 {
@@ -55,24 +54,67 @@ namespace System.CommandLine
                         continue;
                     }
 
-                    if (first is null)
+                    bool isDuplicate = false;
+                    for (int j = 0; j < i; j++)
                     {
-                        first = alias;
-                    }
-                    else if (multiple is null)
-                    {
-                        if (!string.Equals(first, alias, StringComparison.Ordinal))
+                        if (string.Equals(aliases[j], alias, StringComparison.Ordinal))
                         {
-                            multiple = new List<string>(aliases.Length) { first, alias };
+                            isDuplicate = true;
+                            break;
                         }
                     }
-                    else if (!multiple.Contains(alias))
+
+                    if (!isDuplicate)
                     {
-                        multiple.Add(alias);
+                        uniqueCount++;
                     }
                 }
 
-                _aliases = multiple is not null ? multiple.ToArray() : first;
+                if (uniqueCount == 0)
+                {
+                    _aliases = null;
+                }
+                else if (uniqueCount == 1)
+                {
+                    for (int i = 0; i < aliases.Length; i++)
+                    {
+                        if (!string.Equals(aliases[i], Name, StringComparison.Ordinal))
+                        {
+                            _aliases = aliases[i];
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    string[] uniqueAliases = new string[uniqueCount];
+                    int count = 0;
+                    for (int i = 0; i < aliases.Length; i++)
+                    {
+                        string alias = aliases[i];
+                        if (string.Equals(alias, Name, StringComparison.Ordinal))
+                        {
+                            continue;
+                        }
+
+                        bool isDuplicate = false;
+                        for (int j = 0; j < count; j++)
+                        {
+                            if (string.Equals(uniqueAliases[j], alias, StringComparison.Ordinal))
+                            {
+                                isDuplicate = true;
+                                break;
+                            }
+                        }
+
+                        if (!isDuplicate)
+                        {
+                            uniqueAliases[count++] = alias;
+                        }
+                    }
+
+                    _aliases = uniqueAliases;
+                }
             }
 
             _state = commandFactory;
@@ -142,6 +184,12 @@ namespace System.CommandLine
                     return existing;
                 }
 
+                if (_state is ExceptionDispatchInfo failure)
+                {
+                    failure.Throw();
+                    throw new InvalidOperationException("Unreachable.");
+                }
+
                 if (ReferenceEquals(_state, s_creating))
                 {
                     throw new InvalidOperationException(
@@ -172,9 +220,9 @@ namespace System.CommandLine
                         command.AddParent(parent);
                     }
                 }
-                catch
+                catch (Exception exception)
                 {
-                    _state = factory;
+                    _state = ExceptionDispatchInfo.Capture(exception);
                     throw;
                 }
 
@@ -189,7 +237,8 @@ namespace System.CommandLine
             {
                 foreach (string existingAlias in command._aliases)
                 {
-                    if (!Matches(existingAlias, StringComparison.Ordinal))
+                    if (string.Equals(existingAlias, Name, StringComparison.Ordinal) ||
+                        !Matches(existingAlias, StringComparison.Ordinal))
                     {
                         throw new InvalidOperationException(
                             $"The subcommand '{Name}' defines alias '{existingAlias}' which was not declared when registering the subcommand.");
@@ -197,15 +246,39 @@ namespace System.CommandLine
                 }
             }
 
+            bool alreadyAttached = command.FirstParent is not null;
             if (_aliases is string singleAlias)
             {
-                command.Aliases.Add(singleAlias);
+                if (alreadyAttached)
+                {
+                    if (command._aliases?.Contains(singleAlias) != true)
+                    {
+                        throw new InvalidOperationException(
+                            $"The subcommand '{Name}' is already attached and does not have the declared alias '{singleAlias}'.");
+                    }
+                }
+                else
+                {
+                    command.Aliases.Add(singleAlias);
+                }
             }
             else if (_aliases is string[] multipleAliases)
             {
                 for (int i = 0; i < multipleAliases.Length; i++)
                 {
-                    command.Aliases.Add(multipleAliases[i]);
+                    string alias = multipleAliases[i];
+                    if (alreadyAttached)
+                    {
+                        if (command._aliases?.Contains(alias) != true)
+                        {
+                            throw new InvalidOperationException(
+                                $"The subcommand '{Name}' is already attached and does not have the declared alias '{alias}'.");
+                        }
+                    }
+                    else
+                    {
+                        command.Aliases.Add(alias);
+                    }
                 }
             }
         }
@@ -305,42 +378,6 @@ namespace System.CommandLine
             throw new InvalidOperationException($"Command '{_parent.Name}' has no lazy subcommand matching '{nameOrAlias}'.");
         }
 
-        internal bool TryGetSubcommand(string nameOrAlias, StringComparison comparisonType, [NotNullWhen(true)] out Command? subcommand)
-        {
-            for (int i = 0; i < _items.Count; i++)
-            {
-                object entry = _items[i];
-                if (entry is Command eager)
-                {
-                    if (eager.EqualsNameOrAlias(nameOrAlias, comparisonType))
-                    {
-                        subcommand = eager;
-                        return true;
-                    }
-                }
-                else
-                {
-                    LazySubcommand lazy = (LazySubcommand)entry;
-                    if (lazy.CreatedCommand is { } created)
-                    {
-                        if (created.EqualsNameOrAlias(nameOrAlias, comparisonType))
-                        {
-                            subcommand = created;
-                            return true;
-                        }
-                    }
-                    else if (lazy.Matches(nameOrAlias, comparisonType))
-                    {
-                        subcommand = lazy.GetOrCreate(_parent);
-                        return true;
-                    }
-                }
-            }
-
-            subcommand = null;
-            return false;
-        }
-
         internal void AddEntryTokens(Dictionary<string, Token> tokens, int index)
         {
             if (TryGetMaterialized(index) is { } cmd)
@@ -399,13 +436,7 @@ namespace System.CommandLine
             }
         }
 
-        public IEnumerator<Command> GetEnumerator()
-        {
-            for (int i = 0; i < _items.Count; i++)
-            {
-                yield return this[i];
-            }
-        }
+        public IEnumerator<Command> GetEnumerator() => new Enumerator(this);
 
         public int IndexOf(Command item)
         {
@@ -416,7 +447,8 @@ namespace System.CommandLine
 
             for (int i = 0; i < _items.Count; i++)
             {
-                if (ReferenceEquals(TryGetMaterialized(i), item))
+                if (TryGetMaterialized(i) is { } command &&
+                    EqualityComparer<Command>.Default.Equals(command, item))
                 {
                     return i;
                 }
@@ -459,5 +491,50 @@ namespace System.CommandLine
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        private sealed class Enumerator : IEnumerator<Command>
+        {
+            private readonly IEnumerator<object> _entries;
+            private readonly Command _parent;
+            private Command? _current;
+
+            internal Enumerator(SubcommandList list)
+            {
+                _entries = list._items.GetEnumerator();
+                _parent = list._parent;
+            }
+
+            public Command Current => _current!;
+
+            object IEnumerator.Current
+            {
+                get
+                {
+                    _ = ((IEnumerator)_entries).Current;
+                    return Current;
+                }
+            }
+
+            public bool MoveNext()
+            {
+                if (!_entries.MoveNext())
+                {
+                    _current = null;
+                    return false;
+                }
+
+                object entry = _entries.Current;
+                _current = entry is Command command ? command : ((LazySubcommand)entry).GetOrCreate(_parent);
+                return true;
+            }
+
+            public void Reset()
+            {
+                _entries.Reset();
+                _current = null;
+            }
+
+            public void Dispose() => _entries.Dispose();
+        }
     }
 }

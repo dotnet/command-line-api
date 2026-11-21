@@ -117,6 +117,28 @@ rootCommand.Subcommands.Add(configCommand);
 // Usage: myapp config get --key "apiUrl"
 ```
 
+For large command trees, subcommands can be registered with a factory and created only when selected or explicitly accessed:
+
+```csharp
+var rootCommand = new RootCommand("My application");
+
+rootCommand.Add("build", static () =>
+{
+    return new Command("build", "Build the project");
+});
+
+rootCommand.Add("solution", ["sln"], static () =>
+{
+    var command = new Command("solution", "Manage solutions");
+    command.Add("list", static () => new Command("list", "List solutions"));
+    return command;
+});
+```
+
+The factory is not called when the command is registered or when `Subcommands.Count` is read. Parsing a matching command, reading its list index, or enumerating the subcommands materializes that entry. `Contains`, `IndexOf`, and `Remove` do not invoke factories for unmaterialized entries and cannot find those entries even if a factory would return the supplied command. The factory must return a command whose name matches the registered name. Aliases are copied at registration, so later changes to the caller's alias array do not change command routing.
+
+Removing, replacing, or clearing a materialized subcommand also removes its parent link, including for commands added eagerly.
+
 ### Using Options in Command Actions
 
 Access option values through the ParseResult:

@@ -249,6 +249,11 @@ namespace System.CommandLine.Parsing
                 int tokensBefore = tokenList.Count;
                 Command commandBefore = currentCommand;
                 Dictionary<string, Token> knownTokensBefore = knownTokens;
+                bool hasCaptureRemainingArgsBefore = hasCaptureRemainingArgs;
+                int currentArgIndexBefore = currentArgIndex;
+                int currentArgCountBefore = currentArgCount;
+                Option? activeOptionBefore = activeOption;
+                int activeOptionArgCountBefore = activeOptionArgCount;
 
                 Span<char> candidate = ['-', '-'];
                 for (int i = 0; i < alias.Length; i++)
@@ -275,10 +280,7 @@ namespace System.CommandLine.Parsing
 
                         if (tokenList.Count > tokensBefore)
                         {
-                            tokenList.RemoveRange(tokensBefore, tokenList.Count - tokensBefore);
-                            currentCommand = commandBefore;
-                            knownTokens = knownTokensBefore;
-                            ResetCaptureState(currentCommand);
+                            RestoreBundleState();
                         }
 
                         return false;
@@ -286,6 +288,12 @@ namespace System.CommandLine.Parsing
 
                     if (found.Type == TokenType.Command)
                     {
+                        if (i != alias.Length - 1)
+                        {
+                            RestoreBundleState();
+                            return false;
+                        }
+
                         Command cmd = found.Symbol is null
                             ? currentCommand._subcommands!.GetLazy(found.Value)
                             : (Command)found.Symbol;
@@ -328,6 +336,22 @@ namespace System.CommandLine.Parsing
                 }
 
                 return true;
+
+                void RestoreBundleState()
+                {
+                    if (tokenList.Count > tokensBefore)
+                    {
+                        tokenList.RemoveRange(tokensBefore, tokenList.Count - tokensBefore);
+                    }
+
+                    currentCommand = commandBefore;
+                    knownTokens = knownTokensBefore;
+                    hasCaptureRemainingArgs = hasCaptureRemainingArgsBefore;
+                    currentArgIndex = currentArgIndexBefore;
+                    currentArgCount = currentArgCountBefore;
+                    activeOption = activeOptionBefore;
+                    activeOptionArgCount = activeOptionArgCountBefore;
+                }
             }
 
             void ResetCaptureState(Command cmd)

@@ -122,8 +122,7 @@ namespace System.CommandLine.Tests
             addCalls.Should().Be(0);
             toolCalls.Should().Be(0);
 
-            root.TryGetSubcommand("sln", out Command? slnCommand).Should().BeTrue();
-            slnCommand!.Aliases.Should().Contain("sln");
+            root.Subcommands[0].Aliases.Should().Contain("sln");
         }
 
         [Fact]
@@ -216,7 +215,45 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Bundled_short_option_and_lazy_command_alias_parses_identically_to_eager()
+        public void Reentrant_factory_can_catch_recursive_access_and_publish_once()
+        {
+            RootCommand root = new();
+            int calls = 0;
+
+            root.Add("repeat", () =>
+            {
+                calls++;
+                Action recursiveAccess = () => _ = root.Subcommands[0];
+                recursiveAccess.Should().Throw<InvalidOperationException>();
+                return new Command("repeat");
+            });
+
+            Command created = root.Subcommands[0];
+            root.Subcommands[0].Should().BeSameAs(created);
+            calls.Should().Be(1);
+        }
+
+        [Fact]
+        public void Factory_failure_is_cached_and_does_not_retry()
+        {
+            RootCommand root = new();
+            int calls = 0;
+            root.Add("fail", () =>
+            {
+                calls++;
+                throw new InvalidOperationException("factory failed");
+            });
+
+            Action firstAttempt = () => root.Parse("fail");
+            firstAttempt.Should().Throw<InvalidOperationException>().WithMessage("factory failed");
+
+            Action secondAttempt = () => _ = root.Subcommands[0];
+            secondAttempt.Should().Throw<InvalidOperationException>().WithMessage("factory failed");
+            calls.Should().Be(1);
+        }
+
+        [Fact]
+        public void Terminal_bundled_command_alias_matches_eager_behavior_without_mid_bundle_materialization()
         {
             Option<bool> optA = new("-a");
             Option<bool> subOptC = new("-c");
@@ -234,11 +271,17 @@ namespace System.CommandLine.Tests
             resultAb.GetValue(optA).Should().BeTrue();
             resultAb.CommandResult.Command.Name.Should().Be("build");
 
-            ParseResult resultAbc = root.Parse("-abc");
-            resultAbc.Errors.Should().BeEmpty();
-            resultAbc.GetValue(optA).Should().BeTrue();
-            resultAbc.GetValue(subOptC).Should().BeTrue();
-            resultAbc.CommandResult.Command.Name.Should().Be("build");
+            int midBundleFactoryCalls = 0;
+            RootCommand midBundleRoot = new() { new Option<bool>("-a") };
+            midBundleRoot.Add("build", ["-b"], () =>
+            {
+                midBundleFactoryCalls++;
+                return new Command("build") { new Option<bool>("-c") };
+            });
+
+            ParseResult resultAbc = midBundleRoot.Parse("-abc");
+            midBundleFactoryCalls.Should().Be(0);
+            resultAbc.CommandResult.Command.Should().BeSameAs(midBundleRoot);
         }
 
         [Fact]
@@ -329,36 +372,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void TryGetSubcommand_avoids_enumerating_unmatched_entries_and_supports_StringComparison()
-        {
-            int firstCalls = 0;
-            int secondCalls = 0;
-
-            RootCommand root = new();
-            root.Add("first", () =>
-            {
-                firstCalls++;
-                return new Command("first");
-            });
-            root.Add("second", ["sec"], () =>
-            {
-                secondCalls++;
-                return new Command("second");
-            });
-
-            root.TryGetSubcommand("missing", out Command? missing).Should().BeFalse();
-            missing.Should().BeNull();
-            root.TryGetSubcommand("SEC", out _).Should().BeFalse();
-            firstCalls.Should().Be(0);
-            secondCalls.Should().Be(0);
-
-            root.TryGetSubcommand("SEC", StringComparison.OrdinalIgnoreCase, out Command? second).Should().BeTrue();
-            second!.Name.Should().Be("second");
-            firstCalls.Should().Be(0);
-            secondCalls.Should().Be(1);
-        }
-
-        [Fact]
         public void Mismatched_name_or_undeclared_alias_or_null_throws_InvalidOperationException()
         {
             RootCommand wrongNameRoot = new();
@@ -383,7 +396,38 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Registration_and_lookup_validate_arguments_and_detect_sibling_collisions()
+        public void Factory_does_not_add_aliases_to_an_already_attached_shared_command()
+        {
+            Command shared = new("shared");
+            shared.Aliases.Add("existing");
+            Command otherParent = new("other") { shared };
+
+            RootCommand root = new();
+            root.Add("shared", ["existing", "missing"], () => shared);
+
+            Action materialize = () => root.Parse("existing");
+            materialize.Should().Throw<InvalidOperationException>();
+            shared.Aliases.Should().Equal("existing");
+            shared.Parents.Should().Contain(otherParent);
+        }
+
+        [Fact]
+        public void Parsed_result_lookup_detects_duplicate_name_with_unmaterialized_subcommand()
+        {
+            Argument<string> argument = new("same");
+            RootCommand root = new() { argument };
+            root.Add("active", () => new Command("active"));
+            root.Add("same", () => new Command("same"));
+
+            ParseResult result = root.Parse("active");
+
+            Action lookup = () => result.GetResult("same");
+            lookup.Should().Throw<InvalidOperationException>()
+                .WithMessage("Command * has more than one child named \"same\".");
+        }
+
+        [Fact]
+        public void Registration_validates_arguments_and_detects_sibling_collisions()
         {
             RootCommand root = new();
 
@@ -401,12 +445,6 @@ namespace System.CommandLine.Tests
 
             Action nullFactory = () => root.Add("good", null!);
             nullFactory.Should().Throw<ArgumentNullException>();
-
-            Action nullLookup = () => root.TryGetSubcommand(null!, out _);
-            nullLookup.Should().Throw<ArgumentNullException>();
-
-            Action invalidComparison = () => root.TryGetSubcommand("good", (StringComparison)999, out _);
-            invalidComparison.Should().Throw<ArgumentException>();
 
             // Sibling alias collision detected during Parse without materializing either lazy subcommand:
             RootCommand colliding = new();
@@ -447,6 +485,77 @@ namespace System.CommandLine.Tests
 
             root.Subcommands.Clear();
             replacement.Parents.Should().BeEmpty();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Subcommand_enumerator_detects_mutation_without_materializing_unvisited_entries(bool moveFirst)
+        {
+            int lazyCalls = 0;
+            RootCommand root = new();
+            root.Add(new Command("eager"));
+            root.Add("lazy", () =>
+            {
+                lazyCalls++;
+                return new Command("lazy");
+            });
+
+            using IEnumerator<Command> enumerator = root.Subcommands.GetEnumerator();
+            if (moveFirst)
+            {
+                enumerator.MoveNext().Should().BeTrue();
+            }
+
+            root.Add(new Command("added"));
+            Action moveNext = () => enumerator.MoveNext();
+            moveNext.Should().Throw<InvalidOperationException>();
+            lazyCalls.Should().Be(0);
+        }
+
+        [Fact]
+        public void Subcommand_enumerator_can_be_reset_without_recreating_a_published_entry()
+        {
+            int lazyCalls = 0;
+            RootCommand root = new();
+            root.Add("lazy", () =>
+            {
+                lazyCalls++;
+                return new Command("lazy");
+            });
+
+            using IEnumerator<Command> enumerator = root.Subcommands.GetEnumerator();
+            enumerator.MoveNext().Should().BeTrue();
+            Command created = enumerator.Current;
+            enumerator.Reset();
+            enumerator.MoveNext().Should().BeTrue();
+            enumerator.Current.Should().BeSameAs(created);
+            lazyCalls.Should().Be(1);
+        }
+
+        [Fact]
+        public void Identity_queries_ignore_unmaterialized_entries_without_running_factories()
+        {
+            int lazyCalls = 0;
+            Command lazyCommand = new("lazy");
+            RootCommand root = new();
+            root.Add("lazy", () =>
+            {
+                lazyCalls++;
+                return lazyCommand;
+            });
+
+            root.Subcommands.Contains(lazyCommand).Should().BeFalse();
+            root.Subcommands.IndexOf(lazyCommand).Should().Be(-1);
+            root.Subcommands.Remove(lazyCommand).Should().BeFalse();
+            lazyCalls.Should().Be(0);
+
+            root.Parse("lazy").CommandResult.Command.Should().BeSameAs(lazyCommand);
+            root.Subcommands.Contains(lazyCommand).Should().BeTrue();
+            root.Subcommands.IndexOf(lazyCommand).Should().Be(0);
+            root.Subcommands.Remove(lazyCommand).Should().BeTrue();
+            lazyCommand.Parents.Should().BeEmpty();
+            lazyCalls.Should().Be(1);
         }
 
         [Fact]
