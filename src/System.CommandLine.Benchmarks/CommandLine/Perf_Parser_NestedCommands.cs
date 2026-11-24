@@ -7,14 +7,14 @@ using BenchmarkDotNet.Attributes;
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="CliParser"/> when parsing commands.
+    /// Measures the performance of <see cref="CommandLineParser"/> when parsing commands.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_NestedCommands
     {
         private string _testSymbolsAsString;
-        private CliCommand _rootCommand;
-        private CliConfiguration _configuration;
+        private Command _rootCommand;
+        private ParserConfiguration _configuration;
 
         /// <remarks>
         /// 1 - cmd-root
@@ -31,7 +31,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Params(1, 2, 5)]
         public int TestCommandsDepth;
 
-        private void GenerateTestNestedCommands(CliCommand parent, int depth, int countPerLevel)
+        private void GenerateTestNestedCommands(Command parent, int depth, int countPerLevel)
         {
             if (depth == 0)
                 return;
@@ -39,7 +39,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             for (int i = 0; i < countPerLevel; i++)
             {
                 string cmdName = $"{parent.Name}_{depth}.{i}";
-                CliCommand cmd = new(cmdName);
+                Command cmd = new(cmdName);
                 parent.Subcommands.Add(cmd);
                 GenerateTestNestedCommands(cmd, depth - 1, countPerLevel);
             }
@@ -49,12 +49,12 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public void SetupRootCommand()
         {
             string rootCommandName = "root";
-            var rootCommand = new CliCommand(rootCommandName);
+            var rootCommand = new Command(rootCommandName);
             _testSymbolsAsString = rootCommandName;
             GenerateTestNestedCommands(rootCommand, TestCommandsDepth, TestCommandsDepth);
 
             // Choose only one path from the commands tree for the test arguments string
-            CliCommand currentCmd = rootCommand;
+            Command currentCmd = rootCommand;
             while (currentCmd is not null && currentCmd.Subcommands.Count > 0)
             {
                 currentCmd = currentCmd.Subcommands[0];
@@ -62,10 +62,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
             }
 
             _rootCommand = rootCommand;
-            _configuration = new CliConfiguration(rootCommand);
+            _configuration = new ParserConfiguration();
         }
 
         [Benchmark]
-        public ParseResult Parser_Parse() => CliParser.Parse(_rootCommand, _testSymbolsAsString, _configuration);
+        public ParseResult Parser_Parse() => CommandLineParser.Parse(_rootCommand, _testSymbolsAsString, _configuration);
     }
 }

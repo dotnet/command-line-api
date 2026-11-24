@@ -11,12 +11,12 @@
     <!-- maintenance-packages dependencies-->
     <PackageVersion Include="System.Memory" Version="4.6.3" />
     <!-- roslyn dependencies -->
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.0.1" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.1.0" />
     <!-- runtime dependencies -->
     <PackageVersion Include="Microsoft.Bcl.Memory" Version="10.0.9" />
     <!-- external dependencies -->
     <PackageVersion Include="ApprovalTests" Version="7.0.0" />
-    <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageVersion Include="AwesomeAssertions" Version="8.1.0" />
     <PackageVersion Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.6" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />

@@ -10,19 +10,19 @@ using BenchmarkDotNet.Attributes;
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="CliParser"/> when parsing options without arguments.
+    /// Measures the performance of <see cref="CommandLineParser"/> when parsing options without arguments.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Options_Bare
     {
-        private IEnumerable<CliOption> _testSymbols;
+        private IEnumerable<Option> _testSymbols;
         private string _testSymbolsAsString;
-        private CliConfiguration _testConfiguration;
+        private RootCommand _testRootCommand;
 
-        private IEnumerable<CliOption> GenerateTestOptions(int count, ArgumentArity arity)
+        private IEnumerable<Option> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)
                          .Select(i =>
-                                     new CliOption<string>($"-option{i}")
+                                     new Option<string>($"-option{i}")
                                      {
                                          Arity = arity,
                                          Description = $"Description for -option {i} ...."
@@ -49,20 +49,20 @@ namespace System.CommandLine.Benchmarks.CommandLine
         }
 
         [Benchmark]
-        public CliConfiguration ParserFromOptions_Ctor()
+        public RootCommand ParserFromOptions_Ctor()
         {
-            return _testSymbols.CreateConfiguration();
+            return _testSymbols.CreateRootCommand();
         }
 
         [GlobalSetup(Target = nameof(ParserFromOptions_Parse))]
         public void SetupParserFromOptions_Parse()
         {
             var testSymbolsArr = GenerateTestOptions(TestSymbolsCount, ArgumentArity.Zero).ToArray();
-            _testConfiguration = testSymbolsArr.CreateConfiguration();
+            _testRootCommand = testSymbolsArr.CreateRootCommand();
             _testSymbolsAsString = GenerateTestOptionsAsStringExpr(testSymbolsArr.Length);
         }
 
         [Benchmark]
-        public ParseResult ParserFromOptions_Parse() => _testConfiguration.Parse(_testSymbolsAsString);
+        public ParseResult ParserFromOptions_Parse() => _testRootCommand.Parse(_testSymbolsAsString);
     }
 }
