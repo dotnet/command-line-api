@@ -30,6 +30,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
             _rootCommand = new RootCommand
             {
                 option,
+                new Directive("directive1"),
+                new Directive("directive2"),
                 new DiagramDirective()
             };
             _configuration = new InvocationConfiguration
@@ -50,6 +52,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         public IEnumerable<object> GenerateTestParseResults()
             => GenerateTestInputs()
+               .Select(input => $"[diagram] {input}")
                .Select(input => new BdnParam<ParseResult>(_rootCommand.Parse(input), input));
 
         [Benchmark]
