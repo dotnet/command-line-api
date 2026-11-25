@@ -50,6 +50,8 @@
     public System.Void Add(Argument argument)
     public System.Void Add(Option option)
     public System.Void Add(Command command)
+    public System.Void Add(System.String name, System.Func<Command> commandFactory)
+    public System.Void Add(System.String name, System.ReadOnlySpan<System.String> aliases, System.Func<Command> commandFactory)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, ParserConfiguration configuration = null)
     public ParseResult Parse(System.String commandLine, ParserConfiguration configuration = null)
