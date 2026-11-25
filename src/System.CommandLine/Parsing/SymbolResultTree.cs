@@ -86,7 +86,14 @@ namespace System.CommandLine.Parsing
           
             if (!_symbolsByName!.TryGetValue(name, out SymbolNode? node))
             {
-                throw new ArgumentException($"No symbol result found with name \"{name}\".");
+                // The name is either unknown (e.g. a typo) or belongs to a lazy subcommand that was not created yet
+                // or to one of its descendants. Misses are rare, so creating the lazy subcommands here is acceptable.
+                AddUncreatedSubcommands(_rootCommand!);
+
+                if (!_symbolsByName.TryGetValue(name, out node))
+                {
+                    throw new ArgumentException($"No symbol result found with name \"{name}\".");
+                }
             }
 
             while (node is not null)
@@ -132,32 +139,53 @@ namespace System.CommandLine.Parsing
                     }
                 }
             }
+        }
 
-            void AddToSymbolsByName(Symbol symbol, Command parent)
+        private void AddUncreatedSubcommands(Command command)
+        {
+            if (command.HasSubcommands)
             {
-                if (_symbolsByName!.TryGetValue(symbol.Name, out var node))
+                for (var i = 0; i < command.Subcommands.Count; i++)
                 {
-                    var current = node;
-                    do
+                    if (command.SubcommandList.GetIfCreated(i, out _, out _) is { } createdCommand)
                     {
-                        // The same symbol can be added to multiple commands and have multiple parents.
-                        // We can't allow for name duplicates within the same command.
-                        if (ReferenceEquals(current.Parent, parent))
-                        {
-                            throw new InvalidOperationException($"Command {parent.Name} has more than one child named \"{symbol.Name}\".");
-                        }
-                        current = current.Next;
-                    } while (current is not null);
+                        AddUncreatedSubcommands(createdCommand);
+                    }
+                    else
+                    {
+                        Command childCommand = command.Subcommands[i];
+                        AddToSymbolsByName(childCommand, command);
+                        PopulateSymbolsByName(childCommand);
+                        AddUncreatedSubcommands(childCommand);
+                    }
+                }
+            }
+        }
 
-                    _symbolsByName[symbol.Name] = new(symbol, parent)
-                    {
-                        Next = node
-                    };
-                }
-                else
+        private void AddToSymbolsByName(Symbol symbol, Command parent)
+        {
+            if (_symbolsByName!.TryGetValue(symbol.Name, out var node))
+            {
+                var current = node;
+                do
                 {
-                    _symbolsByName[symbol.Name] = new(symbol, parent);
-                }
+                    // The same symbol can be added to multiple commands and have multiple parents.
+                    // We can't allow for name duplicates within the same command.
+                    if (ReferenceEquals(current.Parent, parent))
+                    {
+                        throw new InvalidOperationException($"Command {parent.Name} has more than one child named \"{symbol.Name}\".");
+                    }
+                    current = current.Next;
+                } while (current is not null);
+
+                _symbolsByName[symbol.Name] = new(symbol, parent)
+                {
+                    Next = node
+                };
+            }
+            else
+            {
+                _symbolsByName[symbol.Name] = new(symbol, parent);
             }
         }
     }

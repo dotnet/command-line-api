@@ -511,6 +511,46 @@ namespace System.CommandLine.Tests
             parse.Should().Throw<InvalidOperationException>();
         }
 
+        [Theory]
+        [InlineData("a", true)]
+        [InlineData("a", false)]
+        [InlineData("--x", true)]
+        [InlineData("--x", false)]
+        public void GetResult_returns_null_for_symbols_of_unselected_subcommands(string name, bool useLazy)
+        {
+            RootCommand root = new();
+            AddSubcommand(root, useLazy, "a", static () => new Command("a") { new Option<string>("--x") });
+
+            ParseResult result = root.Parse("");
+
+            result.GetResult(name).Should().BeNull();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void GetResult_throws_for_unknown_name(bool useLazy)
+        {
+            RootCommand root = new();
+            AddSubcommand(root, useLazy, "a", static () => new Command("a") { new Option<string>("--x") });
+
+            Action getResult = () => root.Parse("").GetResult("unknown");
+
+            getResult.Should().Throw<ArgumentException>();
+        }
+
+        [Fact]
+        public void GetValue_by_name_of_selected_subcommand_symbol_does_not_create_unselected_lazy_subcommands()
+        {
+            RootCommand root = new();
+            root.Add("a", static () => new Command("a") { new Option<string>("--x") });
+            root.Add("b", static () => throw new InvalidOperationException("b should not be created"));
+
+            ParseResult result = root.Parse("a --x value");
+
+            result.GetValue<string>("--x").Should().Be("value");
+        }
+
         [Fact]
         public void Lazy_subcommand_factory_cannot_be_null()
         {
