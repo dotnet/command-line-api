@@ -244,7 +244,7 @@ namespace System.CommandLine
         /// Adds a subcommand that is created by <paramref name="commandFactory"/> only when it is needed.
         /// </summary>
         /// <param name="name">The name of the subcommand. It must be equal to the <see cref="Symbol.Name"/> of the command returned by <paramref name="commandFactory"/>.</param>
-        /// <param name="aliases">The aliases of the subcommand. They are added to the command returned by <paramref name="commandFactory"/> if it does not define them.</param>
+        /// <param name="aliases">The aliases of the subcommand. The command returned by <paramref name="commandFactory"/> must not define any aliases, they are added to it when it is created.</param>
         /// <param name="commandFactory">The factory invoked to create the subcommand when needed.</param>
         public void Add(string name, ReadOnlySpan<string> aliases, Func<Command> commandFactory) => SubcommandList.AddLazy(name, aliases, commandFactory);
 

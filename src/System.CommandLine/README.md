@@ -135,7 +135,7 @@ rootCommand.Add("solution", ["sln"], static () =>
 });
 ```
 
-The factory is not called when the command is registered or when `Subcommands.Count` is read. Parsing a matching command, reading its list index, or enumerating the subcommands materializes that entry. `Contains`, `IndexOf`, and `Remove` invoke factories only for unmaterialized entries whose registered name matches the name of the supplied command. The factory must return a command whose name matches the registered name. Aliases are copied at registration, so later changes to the caller's alias array do not change command routing.
+The factory is not called when the command is registered or when `Subcommands.Count` is read. Parsing a matching command, reading its list index, or enumerating the subcommands materializes that entry. `Contains`, `IndexOf`, and `Remove` invoke factories only for unmaterialized entries whose registered name matches the name of the supplied command. The factory must return a command whose name matches the registered name and that does not define any aliases. Aliases must be specified when the command is registered; they are copied at registration, so later changes to the caller's alias array do not change command routing.
 
 ### Using Options in Command Actions
 

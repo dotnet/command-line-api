@@ -490,6 +490,27 @@ namespace System.CommandLine.Tests
             parse.Should().Throw<InvalidOperationException>();
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Lazy_subcommand_factory_returning_command_with_aliases_throws(bool declareAliases)
+        {
+            RootCommand root = new();
+            Func<Command> factory = static () => new Command("a") { Aliases = { "aa" } };
+            if (declareAliases)
+            {
+                root.Add("a", ["aa"], factory);
+            }
+            else
+            {
+                root.Add("a", factory);
+            }
+
+            Action parse = () => root.Parse("a");
+
+            parse.Should().Throw<InvalidOperationException>();
+        }
+
         [Fact]
         public void Lazy_subcommand_factory_cannot_be_null()
         {

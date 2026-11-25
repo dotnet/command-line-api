@@ -240,12 +240,14 @@ namespace System.CommandLine
                             throw new InvalidOperationException($"The factory for command \"{Name}\" returned a command named \"{command.Name}\".");
                         }
 
+                        if (command._aliases is { Count: > 0 })
+                        {
+                            throw new InvalidOperationException($"The factory for command \"{Name}\" returned a command that defines aliases. Aliases of lazily created commands must be specified when the command is added.");
+                        }
+
                         for (int i = 0; i < Aliases.Length; i++)
                         {
-                            if (!command.Aliases.Contains(Aliases[i]))
-                            {
-                                command.Aliases.Add(Aliases[i]);
-                            }
+                            command.Aliases.Add(Aliases[i]);
                         }
 
                         command.AddParent(parent);
