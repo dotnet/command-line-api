@@ -76,7 +76,9 @@ namespace System.CommandLine
         /// <summary>
         /// Gets all of the subcommands for the command.
         /// </summary>
-        public CommandList Subcommands => _subcommands ??= new(this);
+        public IList<Command> Subcommands => SubcommandList;
+
+        internal CommandList SubcommandList => _subcommands ??= new(this);
 
         internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
 
@@ -230,6 +232,21 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The Command to add to the command.</param>
         public void Add(Command command) => Subcommands.Add(command);
+
+        /// <summary>
+        /// Adds a subcommand that is created by <paramref name="commandFactory"/> only when it is needed.
+        /// </summary>
+        /// <param name="name">The name of the subcommand. It must be equal to the <see cref="Symbol.Name"/> of the command returned by <paramref name="commandFactory"/>.</param>
+        /// <param name="commandFactory">The factory that creates the subcommand.</param>
+        public void Add(string name, Func<Command> commandFactory) => SubcommandList.AddLazy(name, commandFactory);
+
+        /// <summary>
+        /// Adds a subcommand that is created by <paramref name="commandFactory"/> only when it is needed.
+        /// </summary>
+        /// <param name="name">The name of the subcommand. It must be equal to the <see cref="Symbol.Name"/> of the command returned by <paramref name="commandFactory"/>.</param>
+        /// <param name="aliases">The aliases of the subcommand. They are added to the command returned by <paramref name="commandFactory"/> if it does not define them.</param>
+        /// <param name="commandFactory">The factory that creates the subcommand.</param>
+        public void Add(string name, ReadOnlySpan<string> aliases, Func<Command> commandFactory) => SubcommandList.AddLazy(name, aliases, commandFactory);
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors.

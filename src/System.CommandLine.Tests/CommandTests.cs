@@ -12,7 +12,7 @@ namespace System.CommandLine.Tests
 {
     public class CommandTests
     {
-        private readonly Command _outerCommand;
+        private readonly Command _outerCommand, _lazyOuterCommand;
 
         public CommandTests()
         {
@@ -23,12 +23,45 @@ namespace System.CommandLine.Tests
                     new Option<string>("--option")
                 }
             };
+            _lazyOuterCommand = new Command("outer");
+            _lazyOuterCommand.Add("inner", static () => new Command("inner")
+            {
+                new Option<string>("--option")
+            });
         }
 
-        [Fact]
-        public void Outer_command_is_identified_correctly_by_RootCommand()
+        // Returns the command created by the factory, either directly or by registering it lazily in a parent command and materializing it.
+        private static Command CreateCommand(bool useLazy, string name, Func<Command> factory)
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            if (!useLazy)
+            {
+                return factory();
+            }
+
+            Command parent = new("parent");
+            parent.Add(name, factory);
+            return parent.Subcommands.Single();
+        }
+
+        private static void AddSubcommand(Command parent, bool useLazy, string name, Func<Command> factory)
+        {
+            if (useLazy)
+            {
+                parent.Add(name, factory);
+            }
+            else
+            {
+                parent.Add(factory());
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Outer_command_is_identified_correctly_by_RootCommand(bool useLazy)
+        {
+            Command command = useLazy ? _lazyOuterCommand : _outerCommand;
+            ParseResult result = command.Parse("outer inner --option argument1");
 
             result
                 .RootCommandResult
@@ -38,10 +71,13 @@ namespace System.CommandLine.Tests
                 .Be("outer");
         }
 
-        [Fact]
-        public void Outer_command_is_identified_correctly_by_Parent_property()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Outer_command_is_identified_correctly_by_Parent_property(bool useLazy)
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            Command command = useLazy ? _lazyOuterCommand : _outerCommand;
+            ParseResult result = command.Parse("outer inner --option argument1");
 
             result
                 .CommandResult
@@ -55,10 +91,13 @@ namespace System.CommandLine.Tests
                 .Be("outer");
         }
 
-        [Fact]
-        public void Inner_command_is_identified_correctly()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Inner_command_is_identified_correctly(bool useLazy)
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            Command command = useLazy ? _lazyOuterCommand : _outerCommand;
+            ParseResult result = command.Parse("outer inner --option argument1");
 
             result.CommandResult
                   .Should()
@@ -70,10 +109,13 @@ namespace System.CommandLine.Tests
                   .Be("inner");
         }
 
-        [Fact]
-        public void Inner_command_option_is_identified_correctly()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Inner_command_option_is_identified_correctly(bool useLazy)
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            Command command = useLazy ? _lazyOuterCommand : _outerCommand;
+            ParseResult result = command.Parse("outer inner --option argument1");
 
             result.CommandResult
                   .Children
@@ -87,10 +129,13 @@ namespace System.CommandLine.Tests
                   .Be("--option");
         }
 
-        [Fact]
-        public void Inner_command_option_argument_is_identified_correctly()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Inner_command_option_argument_is_identified_correctly(bool useLazy)
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            Command command = useLazy ? _lazyOuterCommand : _outerCommand;
+            ParseResult result = command.Parse("outer inner --option argument1");
 
             result.CommandResult
                   .Children
@@ -101,20 +146,22 @@ namespace System.CommandLine.Tests
                   .BeEquivalentTo("argument1");
         }
 
-        [Fact]
-        public void Commands_at_multiple_levels_can_have_their_own_arguments()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Commands_at_multiple_levels_can_have_their_own_arguments(bool useLazy)
         {
-            var outer = new Command("outer")
+            Command outer = new("outer")
             {
                 new Argument<string>("outer_arg")
             };
-            outer.Subcommands.Add(
+            AddSubcommand(outer, useLazy, "inner", static () =>
                 new Command("inner")
                 {
                     new Argument<string[]>("inner_arg")
                 });
 
-            var result = outer.Parse("outer arg1 inner arg2 arg3");
+            ParseResult result = outer.Parse("outer arg1 inner arg2 arg3");
 
             result.CommandResult
                   .Parent
@@ -130,10 +177,12 @@ namespace System.CommandLine.Tests
                   .BeEquivalentTo("arg2", "arg3");
         }
 
-        [Fact]
-        public void Aliases_is_aware_of_added_alias()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Aliases_is_aware_of_added_alias(bool useLazy)
         {
-            var command = new Command("original");
+            Command command = CreateCommand(useLazy, "original", static () => new Command("original"));
 
             command.Aliases.Add("added");
 
@@ -142,13 +191,16 @@ namespace System.CommandLine.Tests
 
 
         [Theory]
-        [InlineData("aa ")]
-        [InlineData(" aa")]
-        [InlineData("aa aa")]
+        [InlineData("aa ", true)]
+        [InlineData("aa ", false)]
+        [InlineData(" aa", true)]
+        [InlineData(" aa", false)]
+        [InlineData("aa aa", true)]
+        [InlineData("aa aa", false)]
         public void When_a_command_is_created_with_an_alias_that_contains_whitespace_then_an_informative_error_is_returned(
-            string alias)
+            string alias, bool useLazy)
         {
-            Action create = () => new Command(alias);
+            Action create = () => CreateCommand(useLazy, alias, () => new Command(alias));
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -159,15 +211,20 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("aa ")]
-        [InlineData(" aa")]
-        [InlineData("aa aa")]
+        [InlineData("aa ", true)]
+        [InlineData("aa ", false)]
+        [InlineData(" aa", true)]
+        [InlineData(" aa", false)]
+        [InlineData("aa aa", true)]
+        [InlineData("aa aa", false)]
         public void When_a_command_alias_is_added_and_contains_whitespace_then_an_informative_error_is_returned(
-            string alias)
+            string alias, bool useLazy)
         {
-            var command = new Command("-x");
+            Command parent = new("parent");
 
-            Action addAlias = () => command.Aliases.Add(alias);
+            Action addAlias = useLazy
+                ? () => parent.Add("-x", [alias], static () => new Command("-x"))
+                : () => new Command("-x").Aliases.Add(alias);
 
             addAlias
                 .Should()
@@ -179,94 +236,124 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("outer", "outer")]
-        [InlineData("outer arg", "outer")]
-        [InlineData("outer inner", "inner")]
-        [InlineData("outer arg inner", "inner")]
-        [InlineData("outer arg inner arg", "inner")]
-        [InlineData("outer sibling", "sibling")]
-        [InlineData("outer inner inner-er", "inner-er")]
-        [InlineData("outer inner arg inner-er", "inner-er")]
-        [InlineData("outer inner arg inner-er arg", "inner-er")]
-        [InlineData("outer arg inner arg inner-er arg", "inner-er")]
-        public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand)
+        [InlineData("outer", "outer", true)]
+        [InlineData("outer", "outer", false)]
+        [InlineData("outer arg", "outer", true)]
+        [InlineData("outer arg", "outer", false)]
+        [InlineData("outer inner", "inner", true)]
+        [InlineData("outer inner", "inner", false)]
+        [InlineData("outer arg inner", "inner", true)]
+        [InlineData("outer arg inner", "inner", false)]
+        [InlineData("outer arg inner arg", "inner", true)]
+        [InlineData("outer arg inner arg", "inner", false)]
+        [InlineData("outer sibling", "sibling", true)]
+        [InlineData("outer sibling", "sibling", false)]
+        [InlineData("outer inner inner-er", "inner-er", true)]
+        [InlineData("outer inner inner-er", "inner-er", false)]
+        [InlineData("outer inner arg inner-er", "inner-er", true)]
+        [InlineData("outer inner arg inner-er", "inner-er", false)]
+        [InlineData("outer inner arg inner-er arg", "inner-er", true)]
+        [InlineData("outer inner arg inner-er arg", "inner-er", false)]
+        [InlineData("outer arg inner arg inner-er arg", "inner-er", true)]
+        [InlineData("outer arg inner arg inner-er arg", "inner-er", false)]
+        public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand, bool useLazy)
         {
-            var outer = new Command("outer")
+            Command outer = new("outer");
+            AddSubcommand(outer, useLazy, "inner", () =>
             {
-                new Command("inner")
-                {
-                    new Command("inner-er")
-                },
-                new Command("sibling")
-            };
+                Command inner = new("inner");
+                AddSubcommand(inner, useLazy, "inner-er", static () => new Command("inner-er"));
+                return inner;
+            });
+            AddSubcommand(outer, useLazy, "sibling", static () => new Command("sibling"));
 
-            var result = outer.Parse(input);
+            ParseResult result = outer.Parse(input);
 
             result.CommandResult.Command.Name.Should().Be(expectedCommand);
         }
 
-        [Fact]
-        public void Commands_can_have_aliases()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Commands_can_have_aliases(bool useLazy)
         {
-            var command = new Command("this");
+            Command command = CreateCommand(useLazy, "this", static () => new Command("this"));
             command.Aliases.Add("that");
             command.Name.Should().Be("this");
             command.Aliases.Should().BeEquivalentTo("that");
             command.Aliases.Should().BeEquivalentTo("that");
 
-            var result = command.Parse("that");
+            ParseResult result = command.Parse("that");
 
             result.CommandResult.Command.Should().BeSameAs(command);
             result.Errors.Should().BeEmpty();
         }
 
-        [Fact]
-        public void RootCommand_can_have_aliases()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void RootCommand_can_have_aliases(bool useLazy)
         {
-            var command = new RootCommand();
+            RootCommand command = new();
             command.Aliases.Add("that");
             command.Aliases.Should().BeEquivalentTo("that");
             command.Aliases.Should().BeEquivalentTo("that");
+            if (useLazy)
+            {
+                // The action makes the subcommand optional, so parsing succeeds without creating it.
+                command.SetAction(static _ => { });
+                command.Add("sub", static () => throw new InvalidOperationException("sub should not be created"));
+            }
 
-            var result = command.Parse("that");
+            ParseResult result = command.Parse("that");
 
             result.CommandResult.Command.Should().BeSameAs(command);
             result.Errors.Should().BeEmpty();
         }
 
-        [Fact]
-        public void Subcommands_can_have_aliases()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Subcommands_can_have_aliases(bool useLazy)
         {
-            var subcommand = new Command("this");
-            subcommand.Aliases.Add("that");
-
-            var rootCommand = new RootCommand
+            RootCommand rootCommand = new();
+            if (useLazy)
             {
-                subcommand
-            };
+                rootCommand.Add("this", ["that"], static () => new Command("this"));
+            }
+            else
+            {
+                Command subcommand = new("this");
+                subcommand.Aliases.Add("that");
+                rootCommand.Add(subcommand);
+            }
 
-            var result = rootCommand.Parse("that");
+            ParseResult result = rootCommand.Parse("that");
 
-            result.CommandResult.Command.Should().BeSameAs(subcommand);
+            result.CommandResult.Command.Should().BeSameAs(rootCommand.Subcommands.Single());
             result.Errors.Should().BeEmpty();
         }
 
-        [Fact]
-        public void It_retains_argument_name_when_it_is_provided()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void It_retains_argument_name_when_it_is_provided(bool useLazy)
         {
-            var command = new Command("-alias")
+            Command command = CreateCommand(useLazy, "-alias", static () => new Command("-alias")
             {
                 new Argument<bool>("arg")
-            };
+            });
 
             command.Arguments.Single().Name.Should().Be("arg");
         }
 
-        [Fact]
-        public void AddGlobalOption_updates_Options_property()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AddGlobalOption_updates_Options_property(bool useLazy)
         {
-            var option = new Option<string>("-x") { Recursive = true };
-            var command = new Command("mycommand");
+            Option<string> option = new("-x") { Recursive = true };
+            Command command = CreateCommand(useLazy, "mycommand", static () => new Command("mycommand"));
             command.Options.Add(option);
 
             command.Options
@@ -275,11 +362,13 @@ namespace System.CommandLine.Tests
         }
 
         // https://github.com/dotnet/command-line-api/issues/1437
-        [Fact]
-        public void When_Options_is_referenced_before_a_global_option_is_added_then_adding_a_global_option_updates_the_Options_collection()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void When_Options_is_referenced_before_a_global_option_is_added_then_adding_a_global_option_updates_the_Options_collection(bool useLazy)
         {
-            var option = new Option<string>("-x");
-            var command = new Command("mycommand");
+            Option<string> option = new("-x");
+            Command command = CreateCommand(useLazy, "mycommand", static () => new Command("mycommand"));
 
             // referencing command.Options here would reproduce the above bug before the fix
             // keeping it ensures the fix works and doesn't regress
@@ -296,23 +385,33 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Adding_lazy_subcommands_does_not_create_them()
+        {
+            RootCommand root = new();
+            root.Add("a", static () => throw new InvalidOperationException("a should not be created"));
+            root.Add("b", ["bb"], static () => throw new InvalidOperationException("b should not be created"));
+
+            root.Subcommands.Count.Should().Be(2);
+        }
+
+        [Fact]
         public void Parser_creates_only_the_lazy_subcommands_that_were_matched()
         {
             List<string> created = new();
             RootCommand root = new();
-            root.Subcommands.AddLazy("a", () =>
+            root.Add("a", () =>
             {
                 created.Add("a");
                 Command a = new("a");
-                a.Subcommands.AddLazy("b", () =>
+                a.Add("b", () =>
                 {
                     created.Add("b");
                     return new Command("b") { new Option<string>("--option") };
                 });
-                a.Subcommands.AddLazy("c", () => throw new InvalidOperationException("c should not be created"));
+                a.Add("c", static () => throw new InvalidOperationException("c should not be created"));
                 return a;
             });
-            root.Subcommands.AddLazy("d", () => throw new InvalidOperationException("d should not be created"));
+            root.Add("d", static () => throw new InvalidOperationException("d should not be created"));
 
             ParseResult result = root.Parse("a b --option value");
 
@@ -323,10 +422,30 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Lazy_subcommand_factory_is_invoked_only_once()
+        {
+            int factoryCalls = 0;
+            RootCommand root = new();
+            root.Add("a", () =>
+            {
+                factoryCalls++;
+                return new Command("a");
+            });
+
+            ParseResult first = root.Parse("a");
+            ParseResult second = root.Parse("a");
+
+            second.CommandResult.Command.Should().BeSameAs(first.CommandResult.Command);
+            root.Subcommands.Single().Should().BeSameAs(first.CommandResult.Command);
+            factoryCalls.Should().Be(1);
+        }
+
+        [Fact]
         public void Lazy_subcommand_can_be_matched_by_alias_and_gets_the_declared_aliases()
         {
             RootCommand root = new();
-            root.Subcommands.AddLazy("solution", ["sln"], () => new Command("solution"));
+            root.Add("solution", ["sln"], static () => new Command("solution"));
+            root.Add("other", static () => throw new InvalidOperationException("other should not be created"));
 
             ParseResult result = root.Parse("sln");
 
@@ -337,14 +456,35 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Parse_errors_do_not_create_unmatched_lazy_subcommands()
+        {
+            RootCommand root = new();
+            root.Add("a", static () => throw new InvalidOperationException("a should not be created"));
+
+            ParseResult result = root.Parse("unknown");
+
+            result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
         public void Lazy_subcommand_factory_returning_command_with_different_name_throws()
         {
             RootCommand root = new();
-            root.Subcommands.AddLazy("a", () => new Command("b"));
+            root.Add("a", static () => new Command("b"));
 
             Action parse = () => root.Parse("a");
 
             parse.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void Lazy_subcommand_factory_cannot_be_null()
+        {
+            RootCommand root = new();
+
+            Action add = () => root.Add("a", null!);
+
+            add.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -353,7 +493,7 @@ namespace System.CommandLine.Tests
             int factoryCalls = 0;
             Command eager = new("eager");
             RootCommand root = new() { eager };
-            root.Subcommands.AddLazy("lazy", () =>
+            root.Add("lazy", () =>
             {
                 factoryCalls++;
                 return new Command("lazy");
@@ -372,15 +512,28 @@ namespace System.CommandLine.Tests
         public void Help_lists_lazy_subcommands_without_creating_their_subcommands()
         {
             RootCommand root = new();
-            root.Subcommands.AddLazy("a", () =>
+            root.Add("a", static () =>
             {
                 Command a = new("a", "description of a");
-                a.Subcommands.AddLazy("b", () => throw new InvalidOperationException("b should not be created"));
+                a.Add("b", static () => throw new InvalidOperationException("b should not be created"));
                 return a;
             });
             StringWriter output = new();
 
             root.Parse("--help").Invoke(new() { Output = output });
+
+            output.ToString().Should().Contain("description of a");
+        }
+
+        [Fact]
+        public void Help_for_lazy_subcommand_does_not_create_its_siblings()
+        {
+            RootCommand root = new();
+            root.Add("a", static () => new Command("a", "description of a"));
+            root.Add("b", static () => throw new InvalidOperationException("b should not be created"));
+            StringWriter output = new();
+
+            root.Parse("a --help").Invoke(new() { Output = output });
 
             output.ToString().Should().Contain("description of a");
         }

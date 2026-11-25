@@ -14,7 +14,7 @@ namespace System.CommandLine
     /// Members that return <see cref="Command"/> instances (the indexer, enumeration, <see cref="CopyTo"/>)
     /// create lazily registered subcommands on demand. The parser creates only the subcommands that were matched.
     /// </remarks>
-    public sealed class CommandList : IList<Command>
+    internal sealed class CommandList : IList<Command>
     {
         // Each item is either a Command or a LazyCommand.
         private readonly List<object> _items = new();
@@ -51,39 +51,23 @@ namespace System.CommandLine
             _items.Add(item);
         }
 
-        /// <summary>
-        /// Adds a subcommand that is created by <paramref name="factory"/> only when it is needed.
-        /// </summary>
-        /// <param name="name">The name of the subcommand. It must be equal to the <see cref="Symbol.Name"/> of the command returned by <paramref name="factory"/>.</param>
-        /// <param name="factory">The factory that creates the subcommand.</param>
-        public void AddLazy(string name, Func<Command> factory) => AddLazy(name, Array.Empty<string>(), factory);
+        internal void AddLazy(string name, Func<Command> commandFactory) => AddLazy(name, ReadOnlySpan<string>.Empty, commandFactory);
 
-        /// <summary>
-        /// Adds a subcommand that is created by <paramref name="factory"/> only when it is needed.
-        /// </summary>
-        /// <param name="name">The name of the subcommand. It must be equal to the <see cref="Symbol.Name"/> of the command returned by <paramref name="factory"/>.</param>
-        /// <param name="aliases">The aliases of the subcommand. They are added to the command returned by <paramref name="factory"/> if it does not define them.</param>
-        /// <param name="factory">The factory that creates the subcommand.</param>
-        public void AddLazy(string name, string[] aliases, Func<Command> factory)
+        internal void AddLazy(string name, ReadOnlySpan<string> aliases, Func<Command> commandFactory)
         {
             Symbol.ThrowIfEmptyOrWithWhitespaces(name, nameof(name));
-
-            if (aliases is null)
-            {
-                throw new ArgumentNullException(nameof(aliases));
-            }
 
             for (int i = 0; i < aliases.Length; i++)
             {
                 Symbol.ThrowIfEmptyOrWithWhitespaces(aliases[i], nameof(aliases));
             }
 
-            if (factory is null)
+            if (commandFactory is null)
             {
-                throw new ArgumentNullException(nameof(factory));
+                throw new ArgumentNullException(nameof(commandFactory));
             }
 
-            _items.Add(new LazyCommand(name, aliases, factory));
+            _items.Add(new LazyCommand(name, aliases.ToArray(), commandFactory));
         }
 
         /// <inheritdoc />

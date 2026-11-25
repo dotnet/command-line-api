@@ -78,7 +78,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
             for (int i = 0; i < TopLevelNames.Length; i++)
             {
-                root.Subcommands.AddLazy(TopLevelNames[i], TopLevelFactories[i]);
+                root.Add(TopLevelNames[i], TopLevelFactories[i]);
             }
 
             return root;
@@ -102,7 +102,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
             for (int i = 0; i < NestedNames.Length; i++)
             {
-                command.Subcommands.AddLazy(NestedNames[i], NestedFactories[i]);
+                command.Add(NestedNames[i], NestedFactories[i]);
             }
 
             return command;

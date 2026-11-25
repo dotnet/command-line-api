@@ -143,7 +143,7 @@ namespace System.CommandLine.Parsing
                             case TokenType.Command:
                                 // A null symbol means it's a lazy subcommand of the command for which knownTokens were created.
                                 Command cmd = token.Symbol is null
-                                    ? currentCommand.Subcommands.GetLazy(arg)
+                                    ? currentCommand.SubcommandList.GetLazy(arg)
                                     : (Command)token.Symbol;
                                 if (cmd != currentCommand)
                                 {
@@ -414,7 +414,7 @@ namespace System.CommandLine.Parsing
 
             if (command.HasSubcommands)
             {
-                var subCommands = command.Subcommands;
+                CommandList subCommands = command.SubcommandList;
                 for (int i = 0; i < subCommands.Count; i++)
                 {
                     if (subCommands.GetIfCreated(i, out string name, out string[] aliases) is { } subCommand)
