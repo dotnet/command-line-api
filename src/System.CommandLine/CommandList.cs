@@ -79,6 +79,21 @@ namespace System.CommandLine
         /// <inheritdoc />
         public void CopyTo(Command[] array, int arrayIndex)
         {
+            if (array is null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
+
+            if (arrayIndex < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            }
+
+            if (array.Length - arrayIndex < _items.Count)
+            {
+                throw new ArgumentException("Destination array is not long enough to copy all the items in the collection.", nameof(array));
+            }
+
             for (int i = 0; i < _items.Count; i++)
             {
                 array[arrayIndex + i] = this[i];

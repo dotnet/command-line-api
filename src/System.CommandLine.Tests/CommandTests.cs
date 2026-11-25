@@ -509,6 +509,21 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void CopyTo_validates_destination_before_creating_lazy_subcommands()
+        {
+            RootCommand root = new();
+            root.Add("a", static () => throw new InvalidOperationException("a should not be created"));
+
+            Action nullArray = () => root.Subcommands.CopyTo(null!, 0);
+            Action negativeIndex = () => root.Subcommands.CopyTo(new Command[1], -1);
+            Action tooSmall = () => root.Subcommands.CopyTo(new Command[1], 1);
+
+            nullArray.Should().Throw<ArgumentNullException>();
+            negativeIndex.Should().Throw<ArgumentOutOfRangeException>();
+            tooSmall.Should().Throw<ArgumentException>();
+        }
+
+        [Fact]
         public void Help_lists_lazy_subcommands_without_creating_their_subcommands()
         {
             RootCommand root = new();
