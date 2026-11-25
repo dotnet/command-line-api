@@ -428,7 +428,11 @@ namespace System.CommandLine.Parsing
 
                         for (int j = 0; j < aliases.Length; j++)
                         {
-                            tokens.Add(aliases[j], new Token(aliases[j], TokenType.Command, null, Token.ImplicitPosition));
+                            // Aliases of eager commands are stored in a set, so duplicates are ignored there too.
+                            if (j == 0 || Array.IndexOf(aliases, aliases[j], 0, j) < 0)
+                            {
+                                tokens.Add(aliases[j], new Token(aliases[j], TokenType.Command, null, Token.ImplicitPosition));
+                            }
                         }
                     }
                 }

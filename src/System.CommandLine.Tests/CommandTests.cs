@@ -456,6 +456,19 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Duplicate_aliases_of_lazy_subcommand_are_ignored()
+        {
+            RootCommand root = new();
+            root.Add("a", ["aa", "aa"], static () => new Command("a"));
+            root.Add("b", static () => throw new InvalidOperationException("b should not be created"));
+
+            ParseResult result = root.Parse("aa");
+
+            result.Errors.Should().BeEmpty();
+            result.CommandResult.Command.Name.Should().Be("a");
+        }
+
+        [Fact]
         public void Parse_errors_do_not_create_unmatched_lazy_subcommands()
         {
             RootCommand root = new();
